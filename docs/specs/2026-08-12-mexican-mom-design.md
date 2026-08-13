@@ -636,33 +636,25 @@ to avoid schema coupling, but it is a second small catalog, not a second package
 
 Codex plugin manifests declare `"skills": "./skills/"` and point at the same tree.
 
-### The open question — RESOLVED 2026-08-13
+### One-tree packaging, verified
 
-**Tested. Copilot CLI and Codex both accept the Claude Code-only fields without error.**
-`copilot plugin install mexican-mom@mcasillas17` reported "Installed 24 skills" and
-`codex plugin add mexican-mom@mcasillas17` installed all 24, with `when_to_use` and
+**Tested. When the frontmatter is valid YAML, Copilot CLI and Codex both accept the
+Claude Code-only fields without error.** `copilot plugin install
+mexican-mom@mcasillas17` reported "Installed 24 skills" and `codex plugin add
+mexican-mom@mcasillas17` installed all 24, with `when_to_use` and
 `disable-model-invocation` present in the frontmatter throughout. Unknown keys are
 tolerated, not rejected — the strictness documented for claude.ai and the Skills API does
 not extend to these two clients.
 
-**Therefore no build step, no generated `dist/`, and no portable-variant generator.** One
-`skills/` tree serves all three platforms. The original reasoning is preserved below.
+**Therefore no build step, no generated `dist/`, and no portable-variant generator.**
+One `skills/` tree serves all three platforms.
 
-### The original question
+### Historical packaging alternative
 
-The `skill-src/` + generated `dist/` architecture proposed in the Copilot companion doc
-exists solely to strip `when_to_use` and `disable-model-invocation` from portable
-variants. **That is only necessary if Codex and Copilot reject unknown frontmatter keys,
-which has not been established.** What is documented is that *claude.ai and the Skills
-API* reject them. The Agent Skills spec does not forbid extra keys.
-
-**Test before building anything:** ship one skill carrying both fields, load it in Codex
-and Copilot, and observe. If they ignore unknown keys, one tree serves all three
-platforms unchanged. If they reject them, add a ~30-line strip script that emits portable
-copies — still not a registry format, a `body.md`/`metadata.yaml` split, or 72 committed
-generated files.
-
-Record the result here once tested.
+The earlier `skill-src/` + generated `dist/` architecture was proposed to strip
+`when_to_use` and `disable-model-invocation` from portable variants. It remains here for
+history only; the active design keeps one `skills/` tree and relies on valid YAML plus
+client-side key tolerance.
 
 ### What is portable
 
@@ -682,8 +674,8 @@ hyphens, and it must match the parent directory name.
 | `disable-model-invocation` | Claude Code extension | Applies to `la-chancla` and the router. On other platforms both become ordinarily invocable; documented as a known difference. |
 
 Both fields are rejected by claude.ai and the Skills API with *"Unexpected key(s) in
-SKILL.md frontmatter."* Whether Codex and Copilot do the same is the open question above.
-Either way the skills still route, because `description` carries the triggers.
+SKILL.md frontmatter."* Copilot and Codex accept the same extra keys when the YAML is
+valid; either way the skills still route, because `description` carries the triggers.
 
 ### Manual-only skills outside Claude Code
 
@@ -812,10 +804,10 @@ Recorded where this document overrides the Copilot synthesis.
 | Question | Copilot v2 | This document | Reason |
 | --- | --- | --- | --- |
 | `pero-no-haces-caso` | Remove, swap for the injection skill | **Keep, and add the injection skill** | Roster size is not fixed; no trade is needed. Its confabulation flaw was already fixed by scoping to warnings the agent itself stated, with an explicit "say nothing if none exists." |
-| Listing budget | Drop as unverified | **Keep** | The 1% budget, least-used eviction, and `skillListingBudgetFraction` are all documented in the Claude Code skills reference. Dropping them removes the mitigation for the pack's most likely deployment failure. |
+| Routing metadata | Drop unsupported budget claims | **Keep concise** | Keep routing metadata concise, keep pack targets conservative, do not rely on undocumented percentages, eviction order, or config keys, and verify discovery in each client. |
 | `porque-soy-tu-mama` | Direct-only | **Automatic** | Direct-only defeats it — nobody types the skill at the moment they are rushing. The paternalism concern is addressed by triggering on the user's literal words rather than inferred state. |
-| Roster size | 22 + router | **23 + router** | Consequence of the first row. |
-| Packaging (cross-platform doc) | `skill-src/` + generated `dist/`, three packages | **One `skills/` tree, three manifests** | The delta between platforms is two frontmatter fields. A registry format, a body/metadata split, and 72 committed generated files is disproportionate — and it assumes Codex and Copilot reject unknown keys, which is untested. Test first; a strip script is the fallback. |
+| Roster size | 23 + router | **23 + router** | Keep the canonical roster fixed. |
+| Packaging (cross-platform doc) | `skill-src/` + generated `dist/`, three packages | **One `skills/` tree, three manifests** | The portable tree stays canonical; packaging differences live in manifests, not duplicated generated files. |
 | Codex distribution | Plugin + marketplace | **Adopted — this document was wrong** | Codex does have `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`. Verified. |
 
 Adopted from Copilot v2: `la-chancla` as a self-contained current-task review;

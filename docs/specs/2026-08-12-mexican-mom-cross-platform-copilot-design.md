@@ -1,5 +1,7 @@
 # mexican-mom — Cross-Platform Packaging with Copilot Support
 
+**HISTORICAL / SUPERSEDED:** The canonical design supersedes the shipped roster, one-tree packaging, and current commands; retain this document for history.
+
 **Date:** 2026-08-12  
 **Status:** Proposed companion to the canonical design  
 **Source:** `2026-08-12-mexican-mom-design.md`  
