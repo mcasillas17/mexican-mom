@@ -1,0 +1,24 @@
+{
+  "name": "mexican-mom",
+  "version": "0.1.0",
+  "description": "Mexican mom-inspired engineering discipline for coding agents",
+  "author": {
+    "name": "mcasillas17",
+    "url": "https://github.com/mcasillas17"
+  },
+  "repository": "https://github.com/mcasillas17/mexican-mom",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "engineering-discipline",
+    "verification",
+    "code-quality"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Mexican Mom",
+    "shortDescription": "Engineering discipline with Mexican mom energy",
+    "developerName": "mcasillas17",
+    "category": "Productivity"
+  }
+}
