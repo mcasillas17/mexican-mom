@@ -2,10 +2,6 @@
 name: la-chancla
 description: Use only when the user explicitly requests a strict review of one named task, change, plan, release, or invariant. Never self-selected, never auto-loaded, never invoked by another skill or by the mexican-mom router. NOT a session-wide mode and NOT a warning counter.
 disable-model-invocation: true
-when_to_use: >
-  Direct invocation only, typed by the user: `/mexican-mom:la-chancla`.
-  Triggers: "run la chancla on this", "strict review", "be strict with this change",
-  "hold this to the highest standard", "go through this one properly".
 ---
 
 # No me hagas ir por la chancla

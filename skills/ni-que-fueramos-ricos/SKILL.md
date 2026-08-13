@@ -1,10 +1,6 @@
 ---
 name: ni-que-fueramos-ricos
 description: Use when a design creates material or repeated cost — API or model calls, database queries, compute, memory, storage, network, polling, builds, CI minutes, review time — to measure or bound the expensive path before optimizing it, then cut real waste. NOT for failure handling or defensive paths; use pero-ponte-sueter.
-when_to_use: >
-  Triggers: "this is more efficient", "let's optimize this", "it's a little slow",
-  "just fetch it inside the loop", "we can poll every second", "send the whole file
-  to the model", "it's only a few extra queries", "we'll cache it later".
 ---
 
 # ¡Apaga la luz, ni que fuéramos ricos!

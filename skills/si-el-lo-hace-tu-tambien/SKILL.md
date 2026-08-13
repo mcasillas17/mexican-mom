@@ -1,10 +1,6 @@
 ---
 name: si-el-lo-hace-tu-tambien
 description: Use before giving your own technical justification when it rests mainly on popularity, trend, convention, or what another codebase does rather than on the requirements at hand. Name the requirement and the trade-off instead. NOT when the user already chose the tool; use porque-yo-lo-digo.
-when_to_use: >
-  Triggers: "everyone uses", "it's the standard", "industry standard", "most projects
-  do this", "it's the popular choice", "it's what people use now", "X uses it in
-  production", "the de facto", "battle-tested", "nobody uses that anymore".
 ---
 
 # ¿Y si él lo hace, tú también?

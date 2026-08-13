@@ -1,10 +1,6 @@
 ---
 name: porque-yo-lo-digo
 description: Use after the user has explicitly chosen an approach or rejected an alternative and you are about to re-open it — re-proposing, hedging, asking why, or quietly building a compromise. NOT for a safety concern you have not yet raised even once; use porque-soy-tu-mama.
-when_to_use: >
-  Triggers: "are you sure", "have you considered", "I still think", "just to flag
-  again", "one thing worth reconsidering", "as I mentioned earlier", "a hybrid
-  approach might", "before I start, why", "for what it's worth".
 ---
 
 # Porque yo lo digo y punto

@@ -1,10 +1,6 @@
 ---
 name: pero-no-haces-caso
 description: Use after a bug, failure, regression, or rework, to check whether you yourself flagged this exact problem earlier in this session and it was not acted on. Quote your earlier words verbatim or say nothing at all. NOT for late-arriving new scope; use no-se-te-olvide-que.
-when_to_use: >
-  Triggers: "that broke again", "we're back to the same error", "this regressed",
-  "we already changed this once", "I had a feeling", "we need to redo that",
-  "as I mentioned earlier", "this is the second time".
 ---
 
 # Te lo dije, pero no haces caso

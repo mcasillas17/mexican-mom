@@ -1,11 +1,6 @@
 ---
 name: ahorita
 description: Use when deferring work, writing a TODO, giving a time estimate, or promising a follow-up. Every deferral must resolve to one stated outcome: committed with a trigger and owner, declared out of scope, or deleted. NOT for urgent work that must preempt everything; use ahorita-es-ahorita.
-when_to_use: >
-  Not for: "drop everything", "stop, this is on fire", "do it now" — that is
-  ahorita-es-ahorita. Triggers: "later", "eventually", "in a future PR", "for now",
-  "we can improve this", "TODO: fix this properly", "I'll follow up", "should take
-  a few minutes", "quick follow-up after this".
 ---
 
 # Ahorita

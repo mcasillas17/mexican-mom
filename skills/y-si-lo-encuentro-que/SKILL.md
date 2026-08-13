@@ -1,9 +1,6 @@
 ---
 name: y-si-lo-encuentro-que
 description: Use before reporting that a repository file, path, symbol, function, route, config key, or dependency is absent or cannot be found. NOT for unverified claims about an external library, API, or platform; use cadena-de-whatsapp.
-when_to_use: >
-  Triggers: "I couldn't find", "there is no", "does not exist", "no such file",
-  "the repo doesn't have", "that isn't defined anywhere".
 ---
 
 # ¿Y si voy y lo encuentro, qué te hago?

@@ -1,10 +1,6 @@
 ---
 name: ahorita-es-ahorita
 description: Use when one task must preempt all other work — the user explicitly says stop, a production outage, a leaked or committed secret, an active security incident, a red build blocking the team, a broken critical path. NOT for time estimates, TODOs, or deferrals; use ahorita.
-when_to_use: >
-  NOT for "later", "I'll get to it", "TODO", "follow-up" — those are ahorita.
-  Triggers: "stop", "wait", "drop that", "prod is down", "we're paged",
-  "the key is in the repo", "main is red", "everything is broken", "hold on".
 ---
 
 # Ahorita no. AHORA.

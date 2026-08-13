@@ -1,10 +1,6 @@
 ---
 name: recoge-tu-tiradero
 description: Use after debugging or experimentation, before final evidence or handoff, to remove residue you created that the solution does not need — trace logs, scratch files, `.only`, temporary flags, abandoned deps. NOT for the handoff gate itself; use vienen-las-visitas. NOT for unreproducible state; use por-si-se-ocupa.
-when_to_use: >
-  Triggers: "the fix works, let me clean up", "I'm done debugging", "let me remove
-  the debug logging", "before I hand this off", "ready for review", "wrapping up",
-  "just tidying up my changes".
 ---
 
 # A ver si ya recoges tu tiradero

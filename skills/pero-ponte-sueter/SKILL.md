@@ -1,9 +1,6 @@
 ---
 name: pero-ponte-sueter
 description: Use when writing code that touches input, I/O, network, parsing, persistence, concurrency, or lifecycle boundaries, to handle the null, empty, malformed, timed-out, partial, and failed paths before the happy path is called finished. NOT for hostile input, injection, or secrets; use ya-te-lavaste-las-manos.
-when_to_use: >
-  Triggers: "the happy path works", "that shouldn't happen", "it always returns",
-  "we can add error handling later", "just wrap it in a try", "it'll never be null".
 ---
 
 # Pero ponte suéter

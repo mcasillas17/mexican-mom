@@ -1,10 +1,6 @@
 ---
 name: no-se-te-olvide-que
 description: Use when a new requirement, constraint, or issue arrives after scope was agreed, work began, or completion was claimed — including scope you discover yourself. Name it as new scope; classify it IN, FOLLOW-UP, or BLOCKER. NOT a generic end-of-task checklist; cleanup is recoge-tu-tiradero.
-when_to_use: >
-  Triggers: "one more thing", "oh and also", "I forgot to mention", "while you're
-  in there", "can it also", "by the way", "small addition", "also we need", "I
-  found another bug while fixing this", "turns out it also affects".
 ---
 
 # Ah, y no se te olvide que

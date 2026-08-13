@@ -1,10 +1,6 @@
 ---
 name: me-estas-avisando-o-pidiendo-permiso
 description: Use before an action needing the user's explicit consent: force-push, history rewrite, dropping a table, deleting a directory, publishing or releasing, sending real email, spending money, or anything touching production or a shared environment. NOT for creating the rollback path; use por-si-se-ocupa.
-when_to_use: >
-  Triggers: "I'll go ahead and", "just letting you know", "I'm about to
-  force-push", "this will delete", "I'll drop the table", "rewriting the
-  history", "deploying to prod", "sending the email now", "you said I could".
 ---
 
 # ¿Me estás avisando o me estás pidiendo permiso?

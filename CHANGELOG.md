@@ -8,6 +8,41 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Because users invoke skills by name, **renaming or removing a skill slug is a breaking
 change** and requires a MAJOR bump.
 
+## [0.1.3] — 2026-08-13
+
+### Fixed
+
+**Skills did not auto-invoke on a default install.** The pack's skill listing was 11,621
+characters across 24 entries, over the budget Claude Code allocates for it. On overflow
+Claude Code drops descriptions silently — skills still list by name, but nothing matches,
+so mom never showed up on her own. Direct invocation kept working, which made the failure
+easy to miss.
+
+Removing `when_to_use` from all 24 skills cuts the listing to **6,787 characters**, a 42%
+reduction, with no loss of routing information: every negative trigger already lived in
+`description` by design, because `when_to_use` is a Claude Code extension that does not
+exist on Codex or Copilot.
+
+Confirmed by controlled experiment. The same prompt, model, and repository, varying only
+`SLASH_COMMAND_TOOL_CHAR_BUDGET`:
+
+- Default budget, 11,621-char listing: four planted scope items silently absorbed.
+- Raised budget, same listing: `no-se-te-olvide-que` classified all four as IN or
+  FOLLOW-UP, and `ahorita` flagged that a follow-up with no durable record "is not a real
+  record."
+- Default budget, 6,787-char listing: same correct behavior.
+
+### Added
+
+- An **If mom stops showing up** section in the README covering the symptom (direct
+  invocation works, auto-invocation does not), how to check it with `/context` and
+  `/doctor`, and `skillListingBudgetFraction` as the remedy.
+
+### Changed
+
+- Frontmatter now uses only the six fields in the Agent Skills specification, so the pack
+  is byte-identical across all supported platforms.
+
 ## [0.1.2] — 2026-08-13
 
 ### Fixed

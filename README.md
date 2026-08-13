@@ -139,7 +139,26 @@ Two exceptions worth knowing:
 - `la-chancla` and `mexican-mom` are **direct-only** — you invoke them, the agent cannot.
   This is enforced by `disable-model-invocation`, a Claude Code-only field. On Copilot and
   Codex it is a strongly worded prompt contract, not enforcement.
-- `when_to_use` adds trigger phrases on Claude Code only. Nothing depends on it.
+- The pack uses only the six fields in the Agent Skills spec. It carries no `when_to_use`,
+  so nothing about routing differs between platforms.
+
+## If mom stops showing up
+
+Claude Code loads every skill's `description` into a shared listing budget that scales
+with the context window. When the listing overflows, **descriptions are dropped silently**
+— the skills still appear by name, but nothing auto-loads, and the pack goes quiet.
+
+This pack is deliberately small on that budget (~6.8k characters across 24 skills), but
+if you have many other skills installed you can still overflow. Symptoms: direct
+invocation via `/mexican-mom:<name>` works fine, while mom never shows up on her own.
+
+Check the Skills row in `/context`, or run `/doctor` for the listing's biggest
+contributors. To give it more room:
+
+```json
+// ~/.claude/settings.json
+{ "skillListingBudgetFraction": 0.02 }
+```
 
 ## What this is not
 

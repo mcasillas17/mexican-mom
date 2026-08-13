@@ -18,10 +18,21 @@ const DIRECT_ONLY = new Set(["la-chancla", "mexican-mom"]);
 // Agent Skills spec caps.
 const SPEC_NAME_MAX = 64;
 const SPEC_DESC_MAX = 1024;
-// Claude Code truncates description + when_to_use together at this length.
+// Claude Code truncates a single entry's listing text at this length.
 const LISTING_CAP = 1536;
 // The pack's own authoring target, tighter than the spec cap on purpose.
 const DESC_TARGET = 320;
+
+// The whole listing shares a budget that scales with the context window, and on
+// overflow Claude Code drops descriptions SILENTLY — skills still list by name, but
+// nothing auto-invokes. v0.1.0-v0.1.2 shipped in exactly that state at 11,621 chars.
+// This ceiling is the regression guard. Raising it is a product decision, not a
+// formality: measure with /context and /doctor before you do.
+const TOTAL_LISTING_CEILING = 8000;
+
+// Fields outside the six-field Agent Skills spec. `when_to_use` is deliberately absent
+// from this pack — it was pure enrichment that cost 42% of the listing budget.
+const BANNED_FIELDS = ["when_to_use"];
 
 const REQUIRED_SECTIONS = [
   "## Rule",
@@ -102,6 +113,7 @@ const skillDirs = readdirSync(SKILLS_DIR).filter((d) =>
 );
 
 const seenNames = new Set();
+let totalListing = 0;
 
 for (const dir of skillDirs) {
   const skillPath = join(SKILLS_DIR, dir, "SKILL.md");
@@ -142,14 +154,23 @@ for (const dir of skillDirs) {
       warn(dir, "description has no `NOT for ...` negative trigger");
   }
 
-  // --- combined listing budget
-  const combined = (desc || "").length + (fm.when_to_use || "").length;
-  if (combined > LISTING_CAP)
-    fail(dir, `description + when_to_use = ${combined} chars, over ${LISTING_CAP}`);
+  // --- per-entry listing cap
+  if ((desc || "").length > LISTING_CAP)
+    fail(dir, `listing text ${desc.length} chars, over the ${LISTING_CAP} cap`);
 
-  // Negative triggers in when_to_use are invisible off Claude Code.
-  if (fm.when_to_use && /\bNOT\b/.test(fm.when_to_use) && desc && !/\bNOT\b/.test(desc))
-    fail(dir, "negative trigger is only in when_to_use — it must be in description");
+  // --- running total against the shared listing budget
+  totalListing += (desc || "").length;
+
+  // --- banned frontmatter
+  for (const field of BANNED_FIELDS) {
+    if (fm[field] !== undefined)
+      fail(
+        dir,
+        `declares \`${field}\`. It is not in the Agent Skills spec and its cost pushed ` +
+          `the listing over budget in v0.1.0-v0.1.2, which silently disabled ` +
+          `auto-invocation. Put the content in \`description\` or drop it.`,
+      );
+  }
 
   // --- invocation policy
   const directOnly = fm["disable-model-invocation"] === "true";
@@ -239,7 +260,22 @@ for (const [file, market] of [
 
 // ---------------------------------------------------------------- report
 
-console.log(`Checked ${skillDirs.length} skills at version ${version ?? "?"}\n`);
+// --- the regression guard for the bug that shipped in v0.1.0-v0.1.2
+if (totalListing > TOTAL_LISTING_CEILING) {
+  failures.push(
+    `LISTING BUDGET: ${totalListing.toLocaleString()} chars across ${skillDirs.length} ` +
+      `skills, over the ${TOTAL_LISTING_CEILING.toLocaleString()} ceiling. Claude Code ` +
+      `drops descriptions SILENTLY on overflow — skills still list by name but stop ` +
+      `auto-invoking. Trim descriptions or cut a skill.`,
+  );
+}
+
+console.log(
+  `Checked ${skillDirs.length} skills at version ${version ?? "?"}\n` +
+    `Listing footprint: ${totalListing.toLocaleString()} / ` +
+    `${TOTAL_LISTING_CEILING.toLocaleString()} chars ` +
+    `(${Math.round((totalListing / TOTAL_LISTING_CEILING) * 100)}% of ceiling)\n`,
+);
 
 if (warnings.length) {
   console.log(`Warnings (${warnings.length}):`);
