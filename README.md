@@ -196,7 +196,26 @@ Renaming or removing a skill slug is a **breaking change**, because people type 
 names. See [CHANGELOG.md](CHANGELOG.md) and the design spec in
 [`docs/specs/`](docs/specs/).
 
-Run `node tests/validate-skills.mjs` before opening a PR.
+Before opening a PR:
+
+```bash
+npm install   # the test suite needs the `yaml` parser
+npm test      # contract tests + the skill validator
+```
+
+`npm test` runs both the contract tests and `tests/validate-skills.mjs`. Running the
+validator directly without installing first fails with
+`Cannot find package 'yaml'` — that is a missing install, not a broken repo.
+
+**Watch the listing footprint.** The validator prints it on every run:
+
+```
+Listing footprint: 6,815 / 8,000 chars (85% of ceiling)
+```
+
+Every skill's `description` shares one budget. Overflow it and Claude Code drops
+descriptions **silently** — skills still list by name but stop auto-invoking, which is
+how v0.1.0–v0.1.2 shipped broken. Adding a skill is not free.
 
 ## License
 
