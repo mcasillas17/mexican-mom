@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Publish a `0.1.3` release candidate in which all 24 skills have valid YAML, validation catches future frontmatter defects, safety routing is corrected, and cross-platform documentation matches the supported CLIs.
+**Goal:** Publish a `0.1.4` release candidate in which all 24 skills have valid YAML, validation catches future frontmatter defects, safety routing is corrected, and cross-platform documentation matches the supported CLIs.
 
 **Architecture:** Keep the existing single `skills/` tree and add a small reusable frontmatter parser backed by the `yaml` package. The repository validator will consume parsed typed values, while Node's built-in test runner covers parser and behavioral contracts. Documentation and manifests remain hand-maintained but are protected by the existing version synchronization checks.
 
@@ -20,10 +20,10 @@
 - Modify three malformed `skills/*/SKILL.md` files: use folded descriptions.
 - Modify `skills/porque-yo-lo-digo/SKILL.md`: add the material-risk exception.
 - Modify `README.md`: refine existing platform-specific lifecycle and invocation guidance.
-- Modify `CHANGELOG.md`: add `0.1.3` and correct historical claims.
+- Modify `CHANGELOG.md`: add `0.1.4` and correct historical claims.
 - Modify `docs/specs/2026-08-12-mexican-mom-design.md`: remove unsupported platform assertions and correct lifecycle commands.
 - Modify the two companion specs: mark superseded decisions explicitly.
-- Modify `VERSION` and four versioned manifests/catalogs: advance the package to `0.1.3`.
+- Modify `VERSION` and four versioned manifests/catalogs: advance the package to `0.1.4`.
 
 ### Task 1: Add a Standards-Compliant Frontmatter Parser
 
@@ -38,7 +38,7 @@
 ```json
 {
   "name": "mexican-mom",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "scripts": {
     "test": "node --test tests/*.test.mjs && node tests/validate-skills.mjs"
@@ -407,7 +407,7 @@ Keep automatic routing language separate from direct syntax.
 
 - [ ] **Step 3: Add and correct changelog entries**
 
-Add `0.1.3` with the YAML, validator, safety, and documentation fixes. Change the
+Add `0.1.4` with the YAML, validator, safety, and documentation fixes. Change the
 `0.1.0` roster to `23 discipline skills plus a router`. Amend the `0.1.1` verification
 claim to record that marketplace installation succeeded but a later audit found three
 frontmatter parse failures.
@@ -473,9 +473,9 @@ Add after each title:
 > current platform commands. Retained for design history only.
 ```
 
-- [ ] **Step 4: Bump all release metadata to `0.1.3`**
+- [ ] **Step 4: Bump all release metadata to `0.1.4`**
 
-Set `VERSION`, both plugin manifests, and both versioned marketplace entries to `0.1.3`.
+Set `VERSION`, both plugin manifests, and both versioned marketplace entries to `0.1.4`.
 Do not create a tag; the pull request is a release candidate.
 
 - [ ] **Step 5: Run consistency searches and tests**
@@ -550,9 +550,9 @@ CODEX_HOME="$AUDIT_ROOT/codex" codex plugin add mexican-mom@mcasillas17 --json
 
 Expected:
 
-- Claude lists `mexican-mom@mcasillas17` version `0.1.3` as enabled.
+- Claude lists `mexican-mom@mcasillas17` version `0.1.4` as enabled.
 - Copilot reports 24 installed skills and `/skills` shows no parse failures.
-- Codex returns version `0.1.3` and 24 installed skills.
+- Codex returns version `0.1.4` and 24 installed skills.
 
 - [ ] **Step 4: Remove only the named temporary configuration directories**
 
@@ -637,7 +637,7 @@ Expected: clean worktree and only release-hardening commits.
 Run:
 
 ```bash
-git push -u origin fix/release-hardening-v0.1.3
+git push -u origin fix/release-hardening-v0.1.4
 ```
 
 Expected: branch created on `origin`.
@@ -649,9 +649,9 @@ Run:
 ```bash
 gh pr create \
   --base main \
-  --head fix/release-hardening-v0.1.3 \
+  --head fix/release-hardening-v0.1.4 \
   --title "Fix cross-platform skill loading and validation" \
-  --body $'## Summary\n- parse every skill frontmatter block with a standards-compliant YAML parser\n- repair three malformed skills and preserve escalation for material risks\n- correct cross-platform usage docs and prepare version 0.1.3\n\n## Verification\n- `npm test`\n- `claude plugin validate .`\n- clean local marketplace installs on Claude Code, Copilot CLI, and Codex\n- GPT-5.6 Luna diff review addressed'
+  --body $'## Summary\n- parse every skill frontmatter block with a standards-compliant YAML parser\n- repair three malformed skills and preserve escalation for material risks\n- correct cross-platform usage docs and prepare version 0.1.4\n\n## Verification\n- `npm test`\n- `claude plugin validate .`\n- clean local marketplace installs on Claude Code, Copilot CLI, and Codex\n- GPT-5.6 Luna diff review addressed'
 ```
 
 The body must include:
@@ -659,7 +659,7 @@ The body must include:
 - the three malformed skills and strict-parser root cause;
 - the settled-decision material-risk exception;
 - corrected invocation and lifecycle documentation;
-- the `0.1.3` version bump;
+- the `0.1.4` version bump;
 - exact test and client-install evidence;
 - the GPT-5.6 Luna review outcome.
 
@@ -668,4 +668,4 @@ The body must include:
 Run: `gh pr view --json number,url,title,state,baseRefName,headRefName`
 
 Expected: an open pull request targeting `main` from
-`fix/release-hardening-v0.1.3`.
+`fix/release-hardening-v0.1.4`.

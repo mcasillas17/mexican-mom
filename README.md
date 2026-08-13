@@ -150,8 +150,8 @@ Two exceptions worth knowing:
 - `la-chancla` and `mexican-mom` are **direct-only** — you invoke them, the agent cannot.
   This is enforced by `disable-model-invocation`, a Claude Code-only field. On Copilot and
   Codex it is a strongly worded prompt contract, not enforcement.
-- The pack uses only the six fields in the Agent Skills spec. It carries no `when_to_use`,
-  so nothing about routing differs between platforms.
+- Every skill omits `when_to_use`. Routing-critical triggers remain in `description`, so
+  routing does not depend on a Claude Code extension.
 
 ## If mom stops showing up
 

@@ -7,7 +7,7 @@
 Make the published skill pack load reliably on Claude Code, GitHub Copilot CLI, and
 Codex; prevent malformed skill frontmatter from passing repository validation; correct
 confirmed behavioral and documentation defects; and verify the complete marketplace
-workflow before publishing patch release 0.1.3.
+workflow before publishing patch release 0.1.4.
 
 ## Scope
 
@@ -35,7 +35,7 @@ Excluded:
 
 ## Repository Isolation
 
-All changes are made on branch `fix/release-hardening-v0.1.3` in a worktree created
+All changes are made on branch `fix/release-hardening-v0.1.4` in a worktree created
 directly from `origin/main`. The existing checkout remains untouched.
 
 ## Validation Architecture
