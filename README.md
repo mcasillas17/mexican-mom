@@ -36,6 +36,39 @@ codex plugin add mexican-mom@mcasillas17
 
 Note that Codex uses `plugin add`, not `plugin install`.
 
+## Updating
+
+**Claude Code** — the qualified `plugin@marketplace` name is required here. The bare form
+fails with `Plugin "mexican-mom" not found`, which looks like the plugin is missing when
+it is really just a syntax error.
+
+```text
+/plugin update mexican-mom@mcasillas17
+```
+
+Add `/reload-plugins` to apply the update without restarting the session.
+
+**Copilot CLI** — refresh the catalog first, then the plugin.
+
+```bash
+copilot plugin marketplace update mcasillas17
+copilot plugin update mexican-mom
+```
+
+**Codex**
+
+```bash
+codex plugin marketplace upgrade mcasillas17
+```
+
+### Uninstalling
+
+```text
+/plugin uninstall mexican-mom@mcasillas17     # Claude Code
+copilot plugin uninstall mexican-mom          # Copilot CLI
+codex plugin remove mexican-mom@mcasillas17   # Codex — qualified name required
+```
+
 ## The skills
 
 Mom shows up on her own when the situation calls for her. You can also invoke any skill

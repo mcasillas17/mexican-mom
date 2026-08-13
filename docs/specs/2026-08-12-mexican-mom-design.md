@@ -609,7 +609,8 @@ frontmatter fields, which is not enough to justify a code generator.
 | Marketplace | `.claude-plugin/marketplace.json` | `.github/plugin/marketplace.json` *or* `.claude-plugin/marketplace.json` | `.agents/plugins/marketplace.json` |
 | Add marketplace | `/plugin marketplace add mcasillas17/mexican-mom` | `copilot plugin marketplace add mcasillas17/mexican-mom` | `codex plugin marketplace add mcasillas17/mexican-mom` |
 | Install | `/plugin install mexican-mom@mcasillas17` | `copilot plugin install mexican-mom@mcasillas17` | `codex plugin add mexican-mom@mcasillas17` |
-| Update | `/plugin update` | `copilot plugin marketplace update` then `copilot plugin update` | `codex plugin marketplace upgrade` |
+| Update | `/plugin update mexican-mom@mcasillas17` — the qualified name is **required**, the bare form errors | `copilot plugin marketplace update mcasillas17` then `copilot plugin update mexican-mom` | `codex plugin marketplace upgrade mcasillas17` |
+| Uninstall | `/plugin uninstall mexican-mom@mcasillas17` | `copilot plugin uninstall mexican-mom` | `codex plugin remove mexican-mom@mcasillas17` — qualified name required |
 | Invoke | `/mexican-mom:la-chancla` | name the skill in the prompt | `$a-ver-ensename` |
 
 Copilot CLI's documented manifest lookup order is `.plugin/plugin.json`, `plugin.json`,
@@ -686,7 +687,7 @@ ship. Document the difference in the README rather than pretending parity.
 The `version` field in `plugin.json` is Claude Code's cache key.
 
 - **Explicit semver** — users receive updates only when you bump it. Pushing commits
-  without bumping has no effect, and `/plugin update` reports "already at the latest
+  without bumping has no effect, and the update command reports "already at the latest
   version." **This is the trap**; a published pack that never bumps never updates.
 - **Omitted `version`** — resolves to the source's git commit SHA, so users update on
   every push. Appropriate while iterating pre-1.0, not after.
@@ -711,9 +712,14 @@ cheaper than remembering.
    confirm no descriptions were dropped.
 
 Repo marketplaces publish on push; there is no separate upload. Users update with
-`/plugin update` (Claude, `/reload-plugins` to apply mid-session),
-`copilot plugin marketplace update` then `copilot plugin update`, or
-`codex plugin marketplace upgrade`.
+`/plugin update mexican-mom@mcasillas17` (Claude — `/reload-plugins` to apply
+mid-session), `copilot plugin marketplace update mcasillas17` then
+`copilot plugin update mexican-mom`, or `codex plugin marketplace upgrade mcasillas17`.
+
+**Claude Code requires the `plugin@marketplace` form on update.** The bare
+`plugin update mexican-mom` fails with `Plugin "mexican-mom" not found`, which reads like
+the plugin is missing rather than like a syntax problem. Copilot accepts either form;
+Codex requires the qualified name on `plugin remove`. All verified against the CLIs.
 
 Codex's universal Plugins Directory is a separate submission channel from the repo
 marketplace, using the same `.codex-plugin` package as the artifact.

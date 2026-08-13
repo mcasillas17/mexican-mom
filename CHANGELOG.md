@@ -8,6 +8,31 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Because users invoke skills by name, **renaming or removing a skill slug is a breaking
 change** and requires a MAJOR bump.
 
+## [0.1.2] — 2026-08-13
+
+### Fixed
+
+- Documented that Claude Code requires the qualified `plugin@marketplace` name when
+  updating. `plugin update mexican-mom` fails with `Plugin "mexican-mom" not found`,
+  which reads like the plugin is missing rather than like a syntax error. The correct
+  form is `plugin update mexican-mom@mcasillas17`.
+
+### Added
+
+- An **Updating** section in the README, with verified update and uninstall commands for
+  all three platforms. The README previously covered installation only, so anyone trying
+  to update reached for the form that fails.
+
+### Verified
+
+Every command in the README and the spec's platform table was run against its CLI:
+
+- Copilot accepts both the bare and qualified name on `plugin update`.
+- Codex requires the qualified name on `plugin remove`, and uses
+  `plugin marketplace upgrade` rather than `update`.
+- `copilot plugin marketplace update` and `codex plugin marketplace upgrade` both work
+  as documented.
+
 ## [0.1.1] — 2026-08-13
 
 ### Fixed
