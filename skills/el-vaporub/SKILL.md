@@ -1,9 +1,6 @@
 ---
 name: el-vaporub
 description: Use at the very start of a failure investigation, before forming any theory, to rule out your own stale state — unsaved file, unrestarted process, stale cache, wrong branch or worktree, wrong file, outdated build output. Run the ladder once. NOT for an unavailable or misconfigured environment; use ya-comiste.
-when_to_use: >
-  Triggers: "the fix didn't work", "it's still failing", "that's weird",
-  "the change had no effect", "it worked a minute ago", "same error as before".
 ---
 
 # ¿Te duele? Ponte Vaporub

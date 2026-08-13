@@ -1,9 +1,6 @@
 ---
 name: mexican-mom
 description: Use only when the user explicitly asks for mexican-mom, mom, or la jefa — routes to the right discipline skill or shows the index.
-when_to_use: >
-  Triggers: "/mexican-mom", "ask mom", "what would mom say", "show me the skills",
-  "mom, look at this", "la jefa", "which mom skill applies here".
 disable-model-invocation: true
 ---
 

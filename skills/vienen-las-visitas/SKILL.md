@@ -1,9 +1,6 @@
 ---
 name: vienen-las-visitas
 description: Use before work crosses to another person or system — opening a pull request, pushing a shared branch, requesting review, handing off to another agent, a demo, or a release. NOT for ordinary intermediate commits; this is the boundary-crossing gate, not a per-commit ritual.
-when_to_use: >
-  Triggers: "open a PR", "push this branch", "ready for review", "ship it",
-  "hand this off", "let's demo this", "cut the release", "send it over".
 ---
 
 # ¡Vienen las visitas!

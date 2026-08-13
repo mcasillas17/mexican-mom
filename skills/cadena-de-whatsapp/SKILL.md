@@ -1,10 +1,6 @@
 ---
 name: cadena-de-whatsapp
 description: Use before asserting an external fact about an API, library, version, CLI flag, runtime, error message, documentation, or platform capability that was not verified in this session. Verify against a primary source or say plainly that you have not. NOT for claims about your own work; use a-ver-ensename.
-when_to_use: >
-  Triggers: "the library supports", "that flag does", "this was deprecated",
-  "the API returns", "as of version", "the default is", "that error means",
-  "the docs say", "it doesn't support that", "I believe X handles".
 ---
 
 # ¿Y eso quién te lo dijo?

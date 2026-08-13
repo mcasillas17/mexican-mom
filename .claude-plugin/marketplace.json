@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "Engineering discipline for coding agents, delivered by a Mexican mother.",
-    "version": "0.1.2"
+    "version": "0.1.3"
   },
   "plugins": [
     {
       "name": "mexican-mom",
       "source": "./",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "description": "Mexican mom-inspired engineering discipline for coding agents"
     }
   ]

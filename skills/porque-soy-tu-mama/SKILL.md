@@ -1,10 +1,6 @@
 ---
 name: porque-soy-tu-mama
 description: Use when the user's own words signal they are skipping a safeguard out of pressure rather than a judgment about risk — "just ship it", "no time", "--no-verify", "I'll fix it tomorrow". Block once, name one risk, offer the smallest checkpoint. NOT for the risk of the action itself; use por-si-se-ocupa.
-when_to_use: >
-  Triggers: "just ship it", "no time", "I'll fix it tomorrow", "skip the tests",
-  "--no-verify", "--force", "screw it", "whatever, push it", "we'll deal with it
-  Monday", a stated deadline given as the reason to skip a check.
 ---
 
 # Porque soy tu mamá, por eso

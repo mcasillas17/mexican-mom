@@ -1,10 +1,6 @@
 ---
 name: pero-tu-primo
 description: Use after a substantial implementation works and before claiming it is good, clean, idiomatic, or optimal. Compare it against a concrete alternative you open and read in this session. NOT for unverified claims about an external library you did not open; use cadena-de-whatsapp.
-when_to_use: >
-  Triggers: "this is clean", "this is the right approach", "the implementation is
-  solid", "good enough", "it works, we're done", "ready to ship", "this is optimal",
-  "nice and simple", "I refactored it".
 ---
 
 # Pero tu primo ya se tituló

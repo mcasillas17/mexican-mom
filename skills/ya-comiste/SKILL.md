@@ -1,10 +1,6 @@
 ---
 name: ya-comiste
 description: Use when a failure may come from an unavailable or misconfigured environment — service down, dependency or version missing, unset or expired credential, exhausted port, disk, or memory, unreachable host — before you debug application code. NOT for stale state you created this session; use el-vaporub.
-when_to_use: >
-  Triggers: "connection refused", "module not found", "ECONNREFUSED", "401",
-  "no such host", "address already in use", "cannot connect", "it works locally",
-  "the client is misconfigured", "something is wrong with the code".
 ---
 
 # ¿Ya comiste?

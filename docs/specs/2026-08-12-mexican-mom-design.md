@@ -96,8 +96,6 @@ name: y-si-lo-encuentro-que
 description: Use before reporting that a repository file, symbol, route, or config
   key is absent or unfindable. NOT for an unverified external fact about a library
   or platform; use cadena-de-whatsapp.
-when_to_use: >
-  Triggers: "I couldn't find", "there is no", "does not exist", "no such file".
 ---
 
 # ¿Y si voy y lo encuentro, qué te hago?
@@ -123,14 +121,18 @@ when_to_use: >
 
 **Authoring targets:** primary trigger in the first clause of `description`; the
 negative trigger in its last clause; `description` under ~320 characters (spec cap is
-1,024); `when_to_use` under ~400; exclusions only on real collision pairs; no humor or
-cultural explanation in frontmatter.
+1,024); exclusions only on real collision pairs; no humor or cultural explanation in
+frontmatter.
 
-**Negative triggers live in `description`, not in `when_to_use`.** `when_to_use` is a
-Claude Code extension and does not exist in the Agent Skills spec, so on Codex, Copilot,
-Cursor, or any other compatible agent it is simply absent. Routing 24 near-neighbor
-skills is exactly what the negative triggers do, so they must sit in the portable field.
-`when_to_use` carries trigger phrases only, as additive enrichment where supported.
+**The pack uses only the six Agent Skills spec fields. `when_to_use` is not used at
+all.** It is a Claude Code extension absent on Codex, Copilot, and Cursor, so every
+routing-critical negative trigger had to live in `description` regardless — which left
+`when_to_use` carrying trigger phrases as pure enrichment.
+
+That enrichment turned out to be actively harmful. It accounted for 4,834 of the pack's
+original 11,621 listing characters, pushing the listing over budget and causing Claude
+Code to drop descriptions silently. Removing it cost no routing information and bought a
+42% reduction. See "The listing budget" below.
 
 ### The description field is the actual engineering
 
@@ -142,11 +144,10 @@ triggers**, not a summary of the bit.
 
 With 24 entries, near-neighbors are the main risk, so every skill in a colliding pair
 carries an explicit `NOT for X; use Y` clause **in its `description`**. This is the most
-effective anti-collision device available, which is exactly why it cannot live in
-`when_to_use` — see the portability rule above. `when_to_use` is appended to
-`description` in the Claude Code listing and carries trigger phrases only.
+effective anti-collision device available, and it is the reason the pack can drop
+`when_to_use` entirely without losing routing quality.
 
-### The listing budget is a real deployment risk
+### The listing budget is not a risk — it fired
 
 `description` and `when_to_use` are truncated together at **1,536 characters per skill**
 — an absolute platform cap, not a target. Separately, the whole listing shares a budget
@@ -155,13 +156,28 @@ descriptions starting with the skills you invoke least**. The budget is raised w
 `skillListingBudgetFraction` (e.g. `0.02`) or `SLASH_COMMAND_TOOL_CHAR_BUDGET`; entries
 can be set to `"name-only"` via `skillOverrides` to free room.
 
-A 24-entry plugin stacked on a user's existing skills is a realistic overflow. The
-failure is silent: the pack lists by name and never auto-loads. Keep descriptions short,
-and verify with `/context` after install.
+**This is not hypothetical. v0.1.0–v0.1.2 shipped broken.** At 11,621 listing characters
+the pack overflowed on a default install, descriptions were dropped, and no skill ever
+auto-invoked. Direct invocation via `/mexican-mom:<name>` kept working perfectly, which
+is what made it hard to spot — the pack looked functional and was not.
+
+Confirmed by controlled experiment: identical prompt, model, and repository, varying only
+`SLASH_COMMAND_TOOL_CHAR_BUDGET`. At the default the agent silently absorbed four planted
+scope items; with the budget raised, `no-se-te-olvide-que` classified all four and
+`ahorita` flagged the undocumented follow-up. Nothing about the skills changed — only
+whether their descriptions reached the model.
+
+v0.1.3 removes `when_to_use` from all 24 skills, cutting the listing to **6,787
+characters**, a 42% reduction with zero routing information lost.
+
+**The lesson for anyone extending this pack: listing footprint is a hard budget, and
+exceeding it fails silently and totally.** Adding skills is not free. Before adding one,
+measure the total, and after installing, check the Skills row in `/context` and run
+`/doctor` for the biggest contributors.
 
 *(All of the above is documented behavior in the Claude Code skills reference. Copilot's
-synthesis treats it as unverified; that is incorrect, and dropping it would remove the
-mitigation for the failure mode this design most depends on.)*
+synthesis treated it as unverified and recommended dropping it from the design; that
+recommendation would have removed the only documentation of the bug that actually shipped.)*
 
 ## The roster
 

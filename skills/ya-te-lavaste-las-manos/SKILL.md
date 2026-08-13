@@ -1,10 +1,6 @@
 ---
 name: ya-te-lavaste-las-manos
 description: Use when code accepts untrusted data — request bodies, query params, headers, cookies, CLI args, file contents, environment, webhook payloads, LLM or third-party responses, deserialized data — or handles credentials, tokens, or keys. NOT for merely malformed input or general failure handling; use pero-ponte-sueter.
-when_to_use: >
-  Triggers: "parse the request", "take the user's input", "build the query",
-  "run the command", "render it to the page", "read the file they gave us",
-  "store the API key", "log the payload", "the model returned".
 ---
 
 # ¿Ya te lavaste las manos?

@@ -1,10 +1,6 @@
 ---
 name: frijoles-en-el-tupper
 description: Use when writing or reviewing names — functions, variables, types, files, schemas, API fields, config keys — and the comments attached to them, to check that each label predicts what is actually inside. NOT for whether failure paths are handled; use pero-ponte-sueter.
-when_to_use: >
-  Triggers: "let's call it", "rename this to", "the comment says", "it's typed as
-  string", "getX also updates", "just pass a flag", "this file also handles",
-  "what unit is that", "it's basically the same as the old one".
 ---
 
 # Dice helado, pero son frijoles

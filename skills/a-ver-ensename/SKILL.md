@@ -1,9 +1,6 @@
 ---
 name: a-ver-ensename
 description: Use before claiming your own work is fixed, passing, complete, compatible, secure, built, or deployed — the claim requires artifact output produced since the latest change. NOT for unverified external library or API facts; use cadena-de-whatsapp. NOT for claiming a repo artifact is absent; use y-si-lo-encuentro-que.
-when_to_use: >
-  Triggers: "it works", "tests pass", "the fix is done", "build succeeded",
-  "deployed", "should be working now", "verified", "all green", "that's complete".
 ---
 
 # A ver, enséñame
