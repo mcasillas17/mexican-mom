@@ -1,0 +1,11 @@
+{
+  "name": "mexican-mom",
+  "version": "0.1.2",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.mjs && node tests/validate-skills.mjs"
+  },
+  "devDependencies": {
+    "yaml": "^2.8.1"
+  }
+}
