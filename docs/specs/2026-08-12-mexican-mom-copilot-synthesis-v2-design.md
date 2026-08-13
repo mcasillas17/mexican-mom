@@ -1,6 +1,12 @@
 # mexican-mom — Copilot Synthesis Design, Second Pass
 
-**HISTORICAL / SUPERSEDED:** The canonical design supersedes the shipped roster, one-tree packaging, and current commands; retain this document for history.
+> [!IMPORTANT]
+> **Historical proposal, superseded by
+> [`2026-08-12-mexican-mom-design.md`](./2026-08-12-mexican-mom-design.md).**
+> The canonical spec defines the shipped roster, one-tree packaging, metadata policy,
+> commands, validation, and release process. This document is retained to explain the
+> alternatives considered; outcome callouts identify recommendations that were tested
+> and rejected.
 
 **Date:** 2026-08-12  
 **Status:** Proposed companion design  
@@ -15,6 +21,11 @@ reviews. It does not replace or modify Claude's document or the first Copilot sy
 The plugin should turn recognizable Mexican-mom sayings into concrete engineering
 discipline for the agent. Humor is the mnemonic. Observable behavior is the product.
 
+> **Shipped outcome (v0.1.4):** The current pack has 23 discipline skills plus one
+> manual router. All routing metadata lives in `description`; `when_to_use` is banned.
+> The pack uses one shared `skills/` tree and currently measures 6,815 / 8,000 listing
+> characters.
+
 ## Comparison of the four new designs
 
 ### Strong consensus
@@ -24,7 +35,8 @@ All four designs agree on these decisions:
 - Mom disciplines the agent, not the user.
 - Skill names are Spanish ASCII slugs; technical instructions and reasoning are English.
 - Spanish lines are optional flavor and cannot carry a rule by themselves.
-- `description` and `when_to_use` are routing infrastructure.
+- `description` is routing infrastructure. The original consensus also included
+  `when_to_use`; v0.1.3 proved that recommendation harmful and removed it.
 - Near-neighbor skills need explicit negative triggers.
 - `a-ver-ensename` is an important evidence-before-success addition.
 - `ya-te-lavaste-las-manos` is an important trust-boundary and secrets addition.
@@ -48,23 +60,41 @@ All four designs agree on these decisions:
 | Voice | Masculine `mijo`, chilango | Soften regional claim | Avoid gendered address | Avoid universal regional claim | Chilango-inspired, not universal; no mandatory address |
 | Marketplace name | `mexican-mom` | Prefer maintainer namespace | Use maintainer namespace | Use declared name consistently | `mcasillas17` |
 
-## Verified platform facts
+> **Post-release correction:** The synthesis was wrong to recommend keeping
+> `when_to_use` and wrong to classify the shared listing budget and
+> `skillListingBudgetFraction` as unverified. v0.1.0 through v0.1.2 shipped with an
+> 11,621-character listing that silently lost descriptions and did not auto-invoke.
+> Removing 4,834 characters of `when_to_use` text cut the listing by 42% to 6,787 and
+> restored automatic routing.
 
-The design relies only on current official Claude Code behavior:
+## Verified platform facts and post-release evidence
 
 - `description` is used for automatic routing.
-- `when_to_use` is supported and appended to `description`.
-- Their combined listing text is truncated at 1,536 characters per skill.
-- `disable-model-invocation: true` prevents automatic model loading.
+- `when_to_use` is not shipped and repository validation rejects it.
+- Each listing entry is capped at 1,536 characters; the pack also enforces an
+  8,000-character total regression ceiling.
+- `disable-model-invocation: true` blocks model/programmatic invocation and keeps the
+  skill description out of model context on Claude Code.
 - `user-invocable` controls visibility in the slash-command menu.
 - Plugin skills are canonically invoked as `/plugin-name:skill-name`.
 - A marketplace plugin is installed as `/plugin install plugin@marketplace`.
 - Claude Code supports additional frontmatter that is not portable to claude.ai or the
   generic Agent Skills packaging path.
 
-This design does not rely on an undocumented `skillListingBudgetFraction` setting, a
-fixed total listing percentage, a least-used eviction order, or bare slash-command
-fallbacks.
+The shared listing budget, silent description dropping on overflow, and
+`skillListingBudgetFraction` are documented Claude Code behavior. The earlier synthesis
+was wrong to dismiss the remedy as unverified; doing so would have removed the only
+documentation of the failure that shipped for three releases.
+
+Controlled experiment — same prompt, model, and repository, varying only listing size:
+
+```text
+11,621 chars, default budget  -> four planted scope items silently absorbed
+11,621 chars, budget raised   -> no-se-te-olvide-que and ahorita both fired
+ 6,787 chars, default budget  -> both fired
+```
+
+Current main measures 6,815 / 8,000 listing characters.
 
 ## Product thesis
 
@@ -98,7 +128,8 @@ Not allowed:
 - diagnosing fatigue, distress, health, or emotional state;
 - using mom voice as a substitute for consent or platform policy.
 
-`porque-soy-tu-mama` is the only user-facing exception. It is direct-only and opt-in.
+`porque-soy-tu-mama` is the only user-facing exception. The shipped skill remains
+automatic under a narrow literal-pressure trigger and stands down after reaffirmation.
 
 ## Voice and cultural contract
 
@@ -119,14 +150,13 @@ Not allowed:
 
 ## Frontmatter and skill anatomy
 
-Every skill uses supported Claude Code frontmatter:
+Every shipped skill uses shared frontmatter:
 
 ```markdown
 ---
 name: y-si-lo-encuentro-que
-description: Use before reporting that a repository artifact is absent or unfindable.
-when_to_use: >
-  Triggers: "I couldn't find", "there is no", "does not exist".
+description: >
+  Use before reporting that a repository artifact is absent or unfindable.
   NOT for an unverified external fact; use cadena-de-whatsapp.
 ---
 
@@ -154,15 +184,22 @@ when_to_use: >
 Authoring targets:
 
 - Put the primary trigger in the first clause of `description`.
-- Keep `description` under roughly 220 characters.
-- Keep `when_to_use` under roughly 400 characters.
+- Keep `description` below the 1,024-character Agent Skills cap and the pack's tighter
+  authoring target.
+- Never declare `when_to_use`; repository validation rejects it.
 - Put exclusions only on real collision pairs.
 - Keep humor and cultural explanation out of frontmatter.
-- Treat 1,536 characters as an absolute combined platform cap, not a target.
-- Use Claude Code-only fields intentionally and document that the plugin is Claude
-  Code-specific.
+- Treat 1,536 characters as an absolute per-entry platform cap, not a target.
+- Measure the complete listing and keep it below the 8,000-character regression ceiling.
+- Use `disable-model-invocation` only for `la-chancla` and `mexican-mom`, and document
+  that it is a prompt contract outside Claude Code.
 
 ## Final roster
+
+> **Shipped outcome:** This section preserves the proposed 22-plus-router roster for
+> history. The canonical v0.1.4 roster contains 23 discipline skills plus one manual
+> router; `pero-no-haces-caso` was retained and the prompt-injection skill was added
+> without replacing it.
 
 The final roster contains **22 discipline skills plus one direct router**. It retains
 the revised design's breadth but replaces its weakest self-referential skill with a
@@ -521,8 +558,10 @@ Document only canonical commands:
 Test `"source": "./"` through an actual clean marketplace installation. Do not promise
 bare `/mexican-mom` or `/la-chancla` commands.
 
-State that this is a Claude Code plugin. Claude Code-specific frontmatter must be removed
-or adapted before packaging for claude.ai or another Agent Skills implementation.
+State that this is a cross-platform plugin with one shared skill tree. `when_to_use` is
+absent everywhere; the remaining Claude-only `disable-model-invocation` field is
+tolerated by Copilot CLI and Codex when the YAML is valid, and acts as a prompt contract
+where it is not enforced.
 
 ## Verification strategy
 
@@ -539,9 +578,11 @@ Skill creation follows RED-GREEN-REFACTOR one skill at a time:
 - Official plugin validation passes.
 - Marketplace and plugin JSON parse and paths resolve.
 - Directory and frontmatter names match and are unique ASCII slugs.
-- Frontmatter uses supported Claude Code fields.
-- `description` and `when_to_use` stay within authoring targets and the official cap.
-- Only the three direct-only skills disable model invocation.
+- Every frontmatter block is strict, valid YAML.
+- No skill declares `when_to_use`.
+- Every `description` stays within its authoring target and the 1,536-character
+  per-entry cap; the complete listing stays below 8,000 characters.
+- Only `la-chancla` and `mexican-mom` disable model invocation.
 - No skill grants tools, registers hooks, or contains hidden shell execution.
 - Every skill contains Rule, Procedure, Evidence, Boundary, and Exit criteria.
 - The router registry exactly matches skill directories.
@@ -597,16 +638,16 @@ Keep the revised design's broad, memorable roster. Its names are a product featu
 discovery aid, so adjacent concepts should not be merged merely to make the table
 shorter.
 
-Make three structural corrections:
+The proposal made three structural recommendations:
 
 1. Replace `pero-no-haces-caso` with
    `no-le-abras-la-puerta-a-cualquiera`, because agent prompt injection is a stronger,
    distinct, and currently missing failure mode.
-2. Make `porque-soy-tu-mama` direct-only, preserving care without unsolicited
-   paternalism.
+2. ~~Make `porque-soy-tu-mama` direct-only.~~ The shipped skill remains automatic only
+   for explicit pressure phrases and stands down after reaffirmation.
 3. Make `la-chancla` a self-contained current-task strict review rather than an
    unenforceable session-wide modifier.
 
-Keep `a-ver-ensename`, `ya-te-lavaste-las-manos`, supported `when_to_use` metadata, and
-the 1,536-character cap. Remove only the unverified listing-budget remedy and other
-claims that cannot be tested through the official plugin behavior.
+Keep `a-ver-ensename`, `ya-te-lavaste-las-manos`, the 1,536-character per-entry cap, the
+shared listing-budget guidance, and `skillListingBudgetFraction`. Do not reintroduce
+`when_to_use`: it consumed 42% of the listing while adding no routing-critical content.
