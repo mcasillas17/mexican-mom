@@ -174,10 +174,12 @@ mexican-mom/
 └── LICENSE
 ```
 
-The tree below is retained as the rejected proposal. It was never required by a supported
-client and is not the shipped repository layout.
+## Historical platform package examples and current lifecycle commands
 
-## Platform packages
+> **Manifest examples in this section are historical proposals, not shipped files.**
+> The current repository uses `.claude-plugin/plugin.json` as Claude's manifest and
+> Copilot's verified fallback, `.codex-plugin/plugin.json` for Codex, and one root
+> `skills/` tree. The install, update, and uninstall commands below are current.
 
 ### Claude Code
 
@@ -236,8 +238,11 @@ Update:
 
 ### GitHub Copilot CLI
 
-Copilot plugins require `plugin.json` at the package root. Skills remain under
-`skills/<slug>/SKILL.md`.
+> **Rejected manifest assumption:** This proposal treated a root `plugin.json` as
+> required. The shipped repository has no root `plugin.json`; Copilot reads
+> `.claude-plugin/plugin.json` through its verified fallback order.
+
+The following root manifest is retained only as the rejected proposal:
 
 Manifest:
 
@@ -437,8 +442,8 @@ Repository marketplaces publish when the updated commit is pushed. They do not r
 separate upload:
 
 - Claude users refresh and run `/plugin update mexican-mom@mcasillas17`.
-- Copilot users run `copilot plugin marketplace update` and
-  `copilot plugin update`.
+- Copilot users run `copilot plugin marketplace update mcasillas17` and
+  `copilot plugin update mexican-mom`.
 - Codex users run `codex plugin marketplace upgrade mcasillas17`, then
   `codex plugin add mexican-mom@mcasillas17`.
 

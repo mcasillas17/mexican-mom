@@ -444,15 +444,19 @@ Choose one primary skill and at most one independent safety overlay. If the situ
 requires more, narrow the task before routing. Do not load the entire pack.
 
 Because `la-chancla` disables model invocation, the router must tell the user to type
-`/mexican-mom:la-chancla`; it must not claim to invoke it.
+the platform's direct invocation syntax for `la-chancla`; it must not claim to invoke it.
 
 Set `disable-model-invocation: true`.
 
 ## Removed skill
 
+> **Rejected roster recommendation:** The shipped pack retains
+> `pero-no-haces-caso` and adds `no-le-abras-la-puerta-a-cualquiera` as a separate
+> prompt-injection boundary. Nothing was replaced.
+
 ### `pero-no-haces-caso`
 
-Remove it from the runtime roster.
+~~Remove it from the runtime roster.~~
 
 Its transcript-scanning behavior is self-referential, token-expensive, and vulnerable to
 confabulating a prior warning. Its corrective action is already better owned by
@@ -460,7 +464,12 @@ debugging, evidence, scope, and handoff skills. The cultural idea can remain in 
 examples or future postmortem documentation, but it is weaker than the missing
 prompt-injection boundary added as `no-le-abras-la-puerta-a-cualquiera`.
 
-## Invocation policy
+## Historical invocation policy proposal
+
+> **Shipped outcome:** The canonical policy has 21 model- and user-invocable discipline
+> skills. Only `la-chancla` and the manual `mexican-mom` router declare
+> `disable-model-invocation: true`; `porque-soy-tu-mama` remains automatic under its
+> narrow literal-pressure trigger.
 
 | Mode | Skills |
 | --- | --- |
@@ -497,7 +506,12 @@ Required compositions:
 | Completion and handoff | Comparison → cleanup → current evidence → handoff |
 | User-invoked care pause | One pause → reaffirmed decision respected unless a hard boundary remains |
 
-## Repository layout
+## Historical repository layout proposal
+
+> **Shipped outcome:** The root `skills/` tree is shared by all platforms. The repository
+> also ships `.codex-plugin/plugin.json`, `.github/plugin/marketplace.json`, and
+> `.agents/plugins/marketplace.json`; Copilot uses `.claude-plugin/plugin.json` as its
+> verified manifest fallback.
 
 ```text
 mexican-mom/
@@ -640,9 +654,9 @@ shorter.
 
 The proposal made three structural recommendations:
 
-1. Replace `pero-no-haces-caso` with
-   `no-le-abras-la-puerta-a-cualquiera`, because agent prompt injection is a stronger,
-   distinct, and currently missing failure mode.
+1. ~~Replace `pero-no-haces-caso` with
+   `no-le-abras-la-puerta-a-cualquiera`.~~ The shipped roster keeps both as distinct
+   owners: one prevents invented hindsight, and one handles prompt injection.
 2. ~~Make `porque-soy-tu-mama` direct-only.~~ The shipped skill remains automatic only
    for explicit pressure phrases and stands down after reaffirmation.
 3. Make `la-chancla` a self-contained current-task strict review rather than an
