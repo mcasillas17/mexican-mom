@@ -1,0 +1,161 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+# A second push to the same PR supersedes the first. Never cancel a push to main or
+# a tag build — `cancel-in-progress` evaluates false for those.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24"
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        # Node 20 reached end of life on 2026-04-30. 22 is in maintenance, 24 is
+        # Active LTS — contributors run one or the other.
+        node: ["22", "24"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+
+      # `npm test` runs the contract tests and then tests/validate-skills.mjs, which
+      # enforces Agent Skills naming rules, the listing-budget ceiling, the ban on
+      # `when_to_use`, invocation policy, required body sections, and version
+      # agreement across VERSION, package.json, and every manifest.
+      - run: npm test
+
+      # Runs on failure too. The budget ceiling is the thing this repo most needs
+      # visible, and a step that only reports when everything is fine is silent in
+      # exactly the case that matters. `|| status=$?` keeps the validator's exit code
+      # without letting errexit abort before the summary is written.
+      - name: Report listing footprint
+        if: always()
+        run: |
+          set -uo pipefail
+          status=0
+          node tests/validate-skills.mjs > validator.log 2>&1 || status=$?
+          {
+            echo "### Skill listing footprint"
+            echo
+            echo '```'
+            grep -E "Checked|Listing footprint|LISTING BUDGET" validator.log || cat validator.log
+            echo '```'
+            if [ "$status" -ne 0 ]; then
+              echo
+              echo "> **The validator failed.** If this is the listing budget, auto-invocation"
+              echo "> is already disabled for anyone who installs this build."
+            fi
+            echo
+            echo "Overflowing this budget disables auto-invocation **silently** —"
+            echo "skills still list by name but stop matching. Adding a skill is not free."
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat validator.log
+          exit "$status"
+
+  packaging:
+    name: packaging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm ci
+
+      # Guards how the pack REACHES users rather than what it contains: portable
+      # frontmatter (parsed with the real YAML parser, so CRLF, a BOM, quoted keys,
+      # and a missing fence fail loudly instead of passing silently), cross-skill
+      # routing references, router roster coverage, manifest shape, that every
+      # declared component path actually resolves, and file encoding.
+      - run: node tests/ci-checks.mjs
+
+      # Components must sit at the plugin root. Anything but the manifest under
+      # .claude-plugin/ is the most common way to make a plugin fail to load, and it
+      # fails at install time on a user's machine, not here.
+      - name: Reject misplaced components
+        run: |
+          set -euo pipefail
+          for d in skills agents commands hooks workflows; do
+            if [ -e ".claude-plugin/$d" ]; then
+              echo "::error::.claude-plugin/$d must live at the plugin root"
+              exit 1
+            fi
+          done
+          echo "ok  no components misplaced under .claude-plugin/"
+
+      # This pack ships skills that tell an agent to keep credentials out of source.
+      # Shipping one would be self-refuting.
+      - name: Secret scan
+        run: |
+          set -uo pipefail
+          if grep -rEn --exclude-dir=node_modules --exclude-dir=.git \
+              'sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{50,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----' .; then
+            echo "::error::possible credential committed"
+            exit 1
+          fi
+          echo "ok  no credential patterns found"
+
+  release-gate:
+    name: release gate
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      # The version in plugin.json is the cache key marketplaces use to decide an
+      # update is available. A tag that disagrees with it publishes a release whose
+      # manifests advertise the wrong version, and every other check here stays green.
+      - name: Tag must agree with VERSION, manifests, and CHANGELOG
+        run: |
+          set -euo pipefail
+          ver="$(tr -d '[:space:]' < VERSION)"
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$tag" != "$ver" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match VERSION $ver"
+            exit 1
+          fi
+          node -e '
+            const fs = require("fs");
+            const want = process.argv[1];
+            let bad = 0;
+            for (const f of ["package.json",
+                             ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json",
+                             ".codex-plugin/plugin.json", ".github/plugin/marketplace.json"]) {
+              const seen = new Set();
+              (function walk(o) {
+                if (o && typeof o === "object")
+                  for (const [k, v] of Object.entries(o))
+                    k === "version" && typeof v === "string" ? seen.add(v) : walk(v);
+              })(JSON.parse(fs.readFileSync(f, "utf8")));
+              if (!seen.size) { console.log(`::error file=${f}::declares no version`); bad = 1; }
+              for (const s of seen)
+                if (s !== want) { console.log(`::error file=${f}::version ${s} != ${want}`); bad = 1; }
+            }
+            process.exit(bad);
+          ' "$ver"
+          grep -qF "[$ver]" CHANGELOG.md || {
+            echo "::error file=CHANGELOG.md::no entry for $ver"; exit 1; }
+          echo "ok  $GITHUB_REF_NAME agrees with every manifest and the changelog"
