@@ -48,31 +48,42 @@ it is really just a syntax error.
 
 Add `/reload-plugins` to apply the update without restarting the session.
 
-**Copilot CLI** — refresh the catalog first, then the plugin.
+**Copilot CLI** — refresh the catalog first, then update or uninstall the qualified
+plugin name.
 
 ```bash
 copilot plugin marketplace update mcasillas17
-copilot plugin update mexican-mom
+copilot plugin update mexican-mom@mcasillas17
 ```
 
-**Codex**
+**Codex** — refresh the catalog first, then reinstall the refreshed plugin with `add`.
 
 ```bash
 codex plugin marketplace upgrade mcasillas17
+codex plugin add mexican-mom@mcasillas17
 ```
 
 ### Uninstalling
 
 ```text
 /plugin uninstall mexican-mom@mcasillas17     # Claude Code
-copilot plugin uninstall mexican-mom          # Copilot CLI
-codex plugin remove mexican-mom@mcasillas17   # Codex — qualified name required
+copilot plugin uninstall mexican-mom@mcasillas17   # Copilot CLI
+codex plugin remove mexican-mom@mcasillas17        # Codex — qualified name required
 ```
 
 ## The skills
 
-Mom shows up on her own when the situation calls for her. You can also invoke any skill
-directly as `/mexican-mom:<name>`.
+Mom shows up on her own when the situation calls for her.
+
+Automatic routing comes directly from each individual skill's `description`. The
+`mexican-mom` router/index is manually invoked and selects one primary skill plus at
+most one safety overlay.
+
+| Platform | Direct invocation | Manual router |
+| --- | --- | --- |
+| Claude Code | `/mexican-mom:<name>` | `/mexican-mom` |
+| GitHub Copilot CLI | `/<name>` | `/mexican-mom` |
+| Codex | `$<name>` | `$mexican-mom` |
 
 ### Investigation and evidence
 
@@ -119,8 +130,9 @@ directly as `/mexican-mom:<name>`.
 
 ### Router
 
-`mexican-mom` — type `/mexican-mom` to have her pick the right one, or show the index. She
-selects one skill plus at most one safety overlay; she never loads the whole pack.
+Automatic routing is platform-specific: use `/mexican-mom` in Claude Code and GitHub
+Copilot CLI, or `$mexican-mom` in Codex. She selects one skill plus at most one safety
+overlay; she never loads the whole pack.
 
 ## `ahorita` vs `ahorita-es-ahorita`
 
@@ -139,8 +151,8 @@ Two exceptions worth knowing:
 - `la-chancla` and `mexican-mom` are **direct-only** — you invoke them, the agent cannot.
   This is enforced by `disable-model-invocation`, a Claude Code-only field. On Copilot and
   Codex it is a strongly worded prompt contract, not enforcement.
-- The pack uses only the six fields in the Agent Skills spec. It carries no `when_to_use`,
-  so nothing about routing differs between platforms.
+- Every skill omits `when_to_use`. Routing-critical triggers remain in `description`, so
+  routing does not depend on a Claude Code extension.
 
 ## If mom stops showing up
 

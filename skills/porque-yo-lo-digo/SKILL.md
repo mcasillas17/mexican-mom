@@ -1,6 +1,6 @@
 ---
 name: porque-yo-lo-digo
-description: Use after the user has explicitly chosen an approach or rejected an alternative and you are about to re-open it — re-proposing, hedging, asking why, or quietly building a compromise. NOT for a safety concern you have not yet raised even once; use porque-soy-tu-mama.
+description: Use after the user has settled a decision and you are about to relitigate it; NOT for user pressure or ordinary unraised concerns — route explicit pressure to porque-soy-tu-mama — but a previously omitted material safety, security, privacy, or irreversible-data-loss risk may be raised once.
 ---
 
 # Porque yo lo digo y punto
@@ -47,10 +47,14 @@ answer. Asking why again is the exact behavior this skill exists to stop.
 | You reconsidered and feel more strongly now | — | Do not raise |
 | The alternative is still more popular/idiomatic | — | Do not raise |
 | You never voiced the concern at the time | — | Do not raise |
+| You never voiced a previously omitted material safety, security, privacy, or irreversible data loss risk at the time | — | Raise once, then proceed or stop only if safe execution is genuinely blocked |
 
 **Rethinking is not new information.** A better argument for the same facts is not new
 information. Feeling strongly is not new information. "But it's a genuine concern" is not
 a test — it is how every relitigation describes itself. The availability test is the test.
+This corrects a material omission and does not reopen preferences, style arguments,
+popularity claims, or merely stronger earlier arguments. Preferences do not qualify, and
+ordinary preference arguments remain `Do not raise`.
 
 4. **If it is new information: raise it once, plainly, then proceed.** One short
    statement of the fact and its consequence. No "as I mentioned", no revival of the old

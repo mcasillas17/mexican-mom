@@ -124,10 +124,10 @@ negative trigger in its last clause; `description` under ~320 characters (spec c
 1,024); exclusions only on real collision pairs; no humor or cultural explanation in
 frontmatter.
 
-**The pack uses only the six Agent Skills spec fields. `when_to_use` is not used at
-all.** It is a Claude Code extension absent on Codex, Copilot, and Cursor, so every
-routing-critical negative trigger had to live in `description` regardless — which left
-`when_to_use` carrying trigger phrases as pure enrichment.
+**All 24 skills omit `when_to_use`.** Every routing-critical negative trigger lives in
+`description`, so routing does not depend on that Claude Code extension. The two
+direct-only skills retain Claude Code's `disable-model-invocation: true`; elsewhere that
+direct-only boundary is a prompt contract rather than platform enforcement.
 
 That enrichment turned out to be actively harmful. It accounted for 4,834 of the pack's
 original 11,621 listing characters, pushing the listing over budget and causing Claude
@@ -150,11 +150,14 @@ effective anti-collision device available, and it is the reason the pack can dro
 ### The listing budget is not a risk — it fired
 
 `description` and `when_to_use` are truncated together at **1,536 characters per skill**
-— an absolute platform cap, not a target. Separately, the whole listing shares a budget
-that **scales at 1% of the model's context window**, and on overflow Claude Code **drops
-descriptions starting with the skills you invoke least**. The budget is raised with
-`skillListingBudgetFraction` (e.g. `0.02`) or `SLASH_COMMAND_TOOL_CHAR_BUDGET`; entries
-can be set to `"name-only"` via `skillOverrides` to free room.
+— an absolute platform cap, not a target. Separately, the whole listing shares a
+context-dependent budget, and on overflow Claude Code silently drops descriptions. This
+release keeps the pack under the measured ~8,000-character ceiling, and the documented
+user-facing remedy remains `skillListingBudgetFraction` (e.g. `0.02`) as preserved in
+README v0.1.3. `SLASH_COMMAND_TOOL_CHAR_BUDGET` appears below only as the control varied
+in the controlled experiment to isolate listing size; it is not presented as a supported
+user configuration knob, and this spec does not add any additional mitigation claim for
+the release.
 
 **This is not hypothetical. v0.1.0–v0.1.2 shipped broken.** At 11,621 listing characters
 the pack overflowed on a default install, descriptions were dropped, and no skill ever
@@ -162,8 +165,9 @@ auto-invoked. Direct invocation via `/mexican-mom:<name>` kept working perfectly
 is what made it hard to spot — the pack looked functional and was not.
 
 Confirmed by controlled experiment: identical prompt, model, and repository, varying only
-`SLASH_COMMAND_TOOL_CHAR_BUDGET`. At the default the agent silently absorbed four planted
-scope items; with the budget raised, `no-se-te-olvide-que` classified all four and
+`SLASH_COMMAND_TOOL_CHAR_BUDGET` inside the experiment harness. At the default the agent
+silently absorbed four planted scope items; with the budget raised, `no-se-te-olvide-que`
+classified all four and
 `ahorita` flagged the undocumented follow-up. Nothing about the skills changed — only
 whether their descriptions reached the model.
 
@@ -363,7 +367,7 @@ work, state the stabilization objective, resolve or contain, then return.
 The pairing with `ahorita` is the best joke in the pack — one word, opposite meanings,
 carried by emphasis. The linguistic truth the header captures: a mom who wants instant
 compliance *stops saying ahorita* and switches to **ahora**. Because the name pulls
-toward #14's territory, the negative trigger leads `when_to_use` on both.
+toward #14's territory, the negative trigger leads `description` on both.
 
 **16. `porque-yo-lo-digo`** — *"Porque yo lo digo y punto."*
 
@@ -616,8 +620,9 @@ command claims the name, but the README promises only namespaced forms.
 **Target platforms: Claude Code (primary), Codex, and Copilot CLI.**
 
 All three ship from **one `skills/` tree** with three small manifests. No build step, no
-generated `dist/`, no per-platform skill copies — the only per-platform delta is two
-frontmatter fields, which is not enough to justify a code generator.
+generated `dist/`, and no per-platform skill copies. `when_to_use` is absent everywhere;
+only `la-chancla` and `mexican-mom` carry `disable-model-invocation: true` for Claude
+Code's direct-only enforcement.
 
 | | Claude Code | Copilot CLI | Codex |
 | --- | --- | --- | --- |
@@ -625,8 +630,8 @@ frontmatter fields, which is not enough to justify a code generator.
 | Marketplace | `.claude-plugin/marketplace.json` | `.github/plugin/marketplace.json` *or* `.claude-plugin/marketplace.json` | `.agents/plugins/marketplace.json` |
 | Add marketplace | `/plugin marketplace add mcasillas17/mexican-mom` | `copilot plugin marketplace add mcasillas17/mexican-mom` | `codex plugin marketplace add mcasillas17/mexican-mom` |
 | Install | `/plugin install mexican-mom@mcasillas17` | `copilot plugin install mexican-mom@mcasillas17` | `codex plugin add mexican-mom@mcasillas17` |
-| Update | `/plugin update mexican-mom@mcasillas17` — the qualified name is **required**, the bare form errors | `copilot plugin marketplace update mcasillas17` then `copilot plugin update mexican-mom` | `codex plugin marketplace upgrade mcasillas17` |
-| Uninstall | `/plugin uninstall mexican-mom@mcasillas17` | `copilot plugin uninstall mexican-mom` | `codex plugin remove mexican-mom@mcasillas17` — qualified name required |
+| Update | `/plugin update mexican-mom@mcasillas17` — the qualified name is **required**, the bare form errors | `copilot plugin marketplace update mcasillas17` then `copilot plugin update mexican-mom@mcasillas17` | `codex plugin marketplace upgrade mcasillas17` then `codex plugin add mexican-mom@mcasillas17` |
+| Uninstall | `/plugin uninstall mexican-mom@mcasillas17` | `copilot plugin uninstall mexican-mom@mcasillas17` | `codex plugin remove mexican-mom@mcasillas17` — qualified name required |
 | Invoke | `/mexican-mom:la-chancla` | name the skill in the prompt | `$a-ver-ensename` |
 
 Copilot CLI's documented manifest lookup order is `.plugin/plugin.json`, `plugin.json`,
@@ -636,33 +641,22 @@ to avoid schema coupling, but it is a second small catalog, not a second package
 
 Codex plugin manifests declare `"skills": "./skills/"` and point at the same tree.
 
-### The open question — RESOLVED 2026-08-13
+### One-tree packaging, verified
 
-**Tested. Copilot CLI and Codex both accept the Claude Code-only fields without error.**
-`copilot plugin install mexican-mom@mcasillas17` reported "Installed 24 skills" and
-`codex plugin add mexican-mom@mcasillas17` installed all 24, with `when_to_use` and
-`disable-model-invocation` present in the frontmatter throughout. Unknown keys are
-tolerated, not rejected — the strictness documented for claude.ai and the Skills API does
-not extend to these two clients.
+**Tested. Copilot CLI and Codex tolerate the Claude-only
+`disable-model-invocation` key when the enclosing frontmatter is valid YAML.** This
+tolerance does not make malformed YAML load. Both clients consume the shared tree after
+the strict parser validates it; `when_to_use` is absent from every current skill.
 
-**Therefore no build step, no generated `dist/`, and no portable-variant generator.** One
-`skills/` tree serves all three platforms. The original reasoning is preserved below.
+**Therefore no build step, no generated `dist/`, and no portable-variant generator.**
+One `skills/` tree serves all three platforms.
 
-### The original question
+### Historical packaging alternative
 
-The `skill-src/` + generated `dist/` architecture proposed in the Copilot companion doc
-exists solely to strip `when_to_use` and `disable-model-invocation` from portable
-variants. **That is only necessary if Codex and Copilot reject unknown frontmatter keys,
-which has not been established.** What is documented is that *claude.ai and the Skills
-API* reject them. The Agent Skills spec does not forbid extra keys.
-
-**Test before building anything:** ship one skill carrying both fields, load it in Codex
-and Copilot, and observe. If they ignore unknown keys, one tree serves all three
-platforms unchanged. If they reject them, add a ~30-line strip script that emits portable
-copies — still not a registry format, a `body.md`/`metadata.yaml` split, or 72 committed
-generated files.
-
-Record the result here once tested.
+The earlier `skill-src/` + generated `dist/` architecture proposed stripping
+Claude-specific fields from portable variants. It remains here for history only; the
+active design keeps one `skills/` tree, omits `when_to_use`, validates YAML strictly, and
+uses a prompt contract where `disable-model-invocation` is not enforced.
 
 ### What is portable
 
@@ -678,12 +672,11 @@ hyphens, and it must match the parent directory name.
 
 | Field | Status | Handling |
 | --- | --- | --- |
-| `when_to_use` | Claude Code extension | Additive only. All routing-critical content lives in `description`. |
-| `disable-model-invocation` | Claude Code extension | Applies to `la-chancla` and the router. On other platforms both become ordinarily invocable; documented as a known difference. |
+| `when_to_use` | Claude Code extension | Not shipped. All routing-critical content lives in `description`. |
+| `disable-model-invocation` | Claude Code extension | Applies only to `la-chancla` and the router. On other platforms it is a prompt contract, not enforcement. |
 
-Both fields are rejected by claude.ai and the Skills API with *"Unexpected key(s) in
-SKILL.md frontmatter."* Whether Codex and Copilot do the same is the open question above.
-Either way the skills still route, because `description` carries the triggers.
+`disable-model-invocation` is the sole current extension. Copilot and Codex tolerate it
+only when the YAML is valid; every routing trigger remains in `description`.
 
 ### Manual-only skills outside Claude Code
 
@@ -730,7 +723,9 @@ cheaper than remembering.
 Repo marketplaces publish on push; there is no separate upload. Users update with
 `/plugin update mexican-mom@mcasillas17` (Claude — `/reload-plugins` to apply
 mid-session), `copilot plugin marketplace update mcasillas17` then
-`copilot plugin update mexican-mom`, or `codex plugin marketplace upgrade mcasillas17`.
+`copilot plugin update mexican-mom@mcasillas17`, or
+`codex plugin marketplace upgrade mcasillas17` then
+`codex plugin add mexican-mom@mcasillas17`.
 
 **Claude Code requires the `plugin@marketplace` form on update.** The bare
 `plugin update mexican-mom` fails with `Plugin "mexican-mom" not found`, which reads like
@@ -761,10 +756,10 @@ test at the end.
   no leading/trailing hyphen, no consecutive hyphens, matches its parent directory.
 - **Every routing-critical negative trigger is in `description`, not `when_to_use`** — so
   routing survives on platforms that do not support the extension.
-- `description` and `when_to_use` within authoring targets and the 1,536-char Claude Code
-  listing cap; `description` alone within the spec's 1,024-char cap.
-- A spec-clean build (both Claude Code-only fields stripped) still validates.
-- Only `la-chancla` and the router disable model invocation.
+- Each `description` remains below the 1,536-character listing cap and the 1,024-character
+  specification cap; the total listing stays within the measured pack budget.
+- No skill declares `when_to_use`; only `la-chancla` and the router declare
+  `disable-model-invocation: true`.
 - No skill grants tools, registers hooks, or contains shell execution.
 - Every skill has Rule, Procedure, Evidence, Boundary, Exit criteria.
 - Router registry matches skill directories exactly.
@@ -812,10 +807,10 @@ Recorded where this document overrides the Copilot synthesis.
 | Question | Copilot v2 | This document | Reason |
 | --- | --- | --- | --- |
 | `pero-no-haces-caso` | Remove, swap for the injection skill | **Keep, and add the injection skill** | Roster size is not fixed; no trade is needed. Its confabulation flaw was already fixed by scoping to warnings the agent itself stated, with an explicit "say nothing if none exists." |
-| Listing budget | Drop as unverified | **Keep** | The 1% budget, least-used eviction, and `skillListingBudgetFraction` are all documented in the Claude Code skills reference. Dropping them removes the mitigation for the pack's most likely deployment failure. |
+| Routing metadata | Drop listing-budget evidence | **Keep measured budget guidance** | Keep routing metadata concise, preserve the measured listing budget, supported mitigation, and cap guidance, and verify discovery in each client. |
 | `porque-soy-tu-mama` | Direct-only | **Automatic** | Direct-only defeats it — nobody types the skill at the moment they are rushing. The paternalism concern is addressed by triggering on the user's literal words rather than inferred state. |
-| Roster size | 22 + router | **23 + router** | Consequence of the first row. |
-| Packaging (cross-platform doc) | `skill-src/` + generated `dist/`, three packages | **One `skills/` tree, three manifests** | The delta between platforms is two frontmatter fields. A registry format, a body/metadata split, and 72 committed generated files is disproportionate — and it assumes Codex and Copilot reject unknown keys, which is untested. Test first; a strip script is the fallback. |
+| Roster size | 23 + router | **23 + router** | Keep the canonical roster fixed. |
+| Packaging (cross-platform doc) | `skill-src/` + generated `dist/`, three packages | **One `skills/` tree, three manifests** | The portable tree stays canonical; packaging differences live in manifests, not duplicated generated files. |
 | Codex distribution | Plugin + marketplace | **Adopted — this document was wrong** | Codex does have `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`. Verified. |
 
 Adopted from Copilot v2: `la-chancla` as a self-contained current-task review;

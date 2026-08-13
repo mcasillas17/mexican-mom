@@ -72,8 +72,8 @@ teaches the model that mom's voice is background noise.
 **`la-chancla` is user-typed only.** It sets `disable-model-invocation: true`, which blocks
 *programmatic* invocation, not merely auto-loading — its description is never loaded into
 context, so nothing in this pack can reach it. If a strict review is what the user wants,
-tell them to type `/mexican-mom:la-chancla` themselves. Never say you invoked it, are
-invoking it, or will invoke it.
+tell them to invoke `la-chancla` directly with the platform's direct skill syntax
+themselves. Never say you invoked it, are invoking it, or will invoke it.
 
 ## Procedure
 

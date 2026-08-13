@@ -1,5 +1,7 @@
 # mexican-mom — Copilot Synthesis Design, Second Pass
 
+**HISTORICAL / SUPERSEDED:** The canonical design supersedes the shipped roster, one-tree packaging, and current commands; retain this document for history.
+
 **Date:** 2026-08-12  
 **Status:** Proposed companion design  
 **Source:** Revised `2026-08-12-mexican-mom-design.md`  

@@ -110,8 +110,9 @@ Routing:
 
 - **The `mexican-mom` router cannot invoke this skill.** With model invocation disabled,
   its description is never loaded, so nothing can select it programmatically. The user
-  types `/mexican-mom:la-chancla` or it does not run. On platforms without that field, the
-  first line of the description is the only thing holding the line — treat it as binding.
+  explicitly invokes `la-chancla` with the platform's direct skill syntax or it does
+  not run. On platforms without that field, the first line of the description is the
+  only thing holding the line — treat it as binding.
 - Ongoing discipline between reviews belongs to the individual skills — cleanup, evidence,
   consent, handoff each have their own. This review does not delegate its checks to them
   and does not replace them.

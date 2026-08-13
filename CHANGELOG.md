@@ -8,6 +8,26 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Because users invoke skills by name, **renaming or removing a skill slug is a breaking
 change** and requires a MAJOR bump.
 
+## [0.1.4] — 2026-08-13
+
+### Fixed
+
+- Parse every skill frontmatter block with a strict YAML parser; malformed syntax,
+  duplicate keys, and non-mapping documents now fail validation.
+- Fold the three previously malformed descriptions, preserving the listing-budget checks
+  that keep automatic routing available.
+- Clarify automatic routing vs manual router usage and remove the hard-coded Claude
+  command from the shared `la-chancla` guidance so direct syntax stays portable.
+- Permit one concise correction for a previously omitted material safety, security,
+  privacy, or irreversible-data-loss risk without reopening ordinary decisions.
+- Correct platform invocation, update, and uninstall guidance, including Codex's refresh
+  then `plugin add` workflow.
+
+### Changed
+
+- Retarget the release-hardening follow-up to 0.1.4. The shipped 0.1.3 listing-budget
+  evidence and its `when_to_use` removal remain documented below.
+
 ## [0.1.3] — 2026-08-13
 
 ### Fixed
@@ -40,8 +60,9 @@ Confirmed by controlled experiment. The same prompt, model, and repository, vary
 
 ### Changed
 
-- Frontmatter now uses only the six fields in the Agent Skills specification, so the pack
-  is byte-identical across all supported platforms.
+- Removed `when_to_use` from every skill. The two direct-only skills retain
+  `disable-model-invocation: true` for Claude Code; on Copilot and Codex their
+  direct-only status remains a prompt contract.
 
 ## [0.1.2] — 2026-08-13
 
@@ -77,17 +98,20 @@ Every command in the README and the spec's platform table was run against its CL
 
 ### Verified
 
-- Clean install confirmed end to end on Claude Code, GitHub Copilot CLI, and Codex.
-  All 24 skills install and enable on each.
-- Copilot and Codex accept `when_to_use` and `disable-model-invocation` without error.
-  Those Claude Code-only fields are tolerated rather than rejected, so one `skills/`
-  tree serves all three platforms with no build step.
+- Marketplace installation succeeded end to end on Claude Code, GitHub Copilot CLI, and
+  Codex.
+- A later audit found malformed YAML kept three skills from loading correctly in Copilot,
+  so the initial 24-skill readout there was too optimistic.
+- With valid YAML, Copilot and Codex tolerated the then-present `when_to_use` and
+  `disable-model-invocation` extensions. That tolerance never made malformed YAML load;
+  the pack now omits `when_to_use`, while its two direct-only skills retain the latter
+  Claude Code field.
 
 ## [0.1.0] — 2026-08-12
 
 ### Added
 
-Initial release. 22 discipline skills plus a router.
+Initial release. 23 discipline skills plus a router.
 
 **Investigation and evidence**
 

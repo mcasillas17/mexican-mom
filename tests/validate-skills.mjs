@@ -8,6 +8,7 @@
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseFrontmatter } from "./frontmatter.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SKILLS_DIR = join(ROOT, "skills");
@@ -22,6 +23,8 @@ const SPEC_DESC_MAX = 1024;
 const LISTING_CAP = 1536;
 // The pack's own authoring target, tighter than the spec cap on purpose.
 const DESC_TARGET = 320;
+const SEMVER_RE =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
 
 // The whole listing shares a budget that scales with the context window, and on
 // overflow Claude Code drops descriptions SILENTLY — skills still list by name, but
@@ -59,32 +62,8 @@ const warnings = [];
 const fail = (skill, msg) => failures.push(`${skill}: ${msg}`);
 const warn = (skill, msg) => warnings.push(`${skill}: ${msg}`);
 
-/** Minimal frontmatter reader. Handles `key: value` and `key: >`/`|` blocks. */
-function parseFrontmatter(text) {
-  const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
-  if (!match) return null;
-  const fields = {};
-  let key = null;
-  let buffer = [];
-  const flush = () => {
-    if (key) fields[key] = buffer.join(" ").trim();
-    key = null;
-    buffer = [];
-  };
-  for (const line of match[1].split(/\r?\n/)) {
-    const kv = /^([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
-    if (kv && !/^\s/.test(line)) {
-      flush();
-      key = kv[1];
-      const value = kv[2].trim();
-      if (value === ">" || value === "|" || value === ">-" || value === "|-") buffer = [];
-      else buffer = [value];
-    } else if (key) {
-      buffer.push(line.trim());
-    }
-  }
-  flush();
-  return fields;
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function readJson(relPath) {
@@ -122,15 +101,17 @@ for (const dir of skillDirs) {
     continue;
   }
   const text = readFileSync(skillPath, "utf8");
-  const fm = parseFrontmatter(text);
-  if (!fm) {
-    fail(dir, "no YAML frontmatter");
+  let fm;
+  try {
+    fm = parseFrontmatter(text, skillPath);
+  } catch (err) {
+    fail(skillPath, `frontmatter parse error: ${err.message}`);
     continue;
   }
 
   // --- name: spec rules
   const name = fm.name;
-  if (!name) fail(dir, "frontmatter missing `name`");
+  if (!isNonEmptyString(name)) fail(dir, "frontmatter missing `name`");
   else {
     if (name !== dir) fail(dir, `name "${name}" does not match directory`);
     if (name.length > SPEC_NAME_MAX) fail(dir, `name exceeds ${SPEC_NAME_MAX} chars`);
@@ -143,7 +124,7 @@ for (const dir of skillDirs) {
 
   // --- description: the routing infrastructure
   const desc = fm.description;
-  if (!desc) fail(dir, "frontmatter missing `description`");
+  if (!isNonEmptyString(desc)) fail(dir, "frontmatter missing `description`");
   else {
     if (desc.length > SPEC_DESC_MAX)
       fail(dir, `description ${desc.length} chars exceeds spec cap ${SPEC_DESC_MAX}`);
@@ -173,11 +154,18 @@ for (const dir of skillDirs) {
   }
 
   // --- invocation policy
-  const directOnly = fm["disable-model-invocation"] === "true";
-  if (DIRECT_ONLY.has(dir) && !directOnly)
-    fail(dir, "must set disable-model-invocation: true");
-  if (!DIRECT_ONLY.has(dir) && directOnly)
-    fail(dir, "unexpectedly sets disable-model-invocation");
+  const hasDirectInvocationFlag = Object.prototype.hasOwnProperty.call(
+    fm,
+    "disable-model-invocation",
+  );
+  const directInvocationFlag = fm["disable-model-invocation"];
+  if (DIRECT_ONLY.has(dir)) {
+    if (!hasDirectInvocationFlag) fail(dir, "must set disable-model-invocation: true");
+    else if (directInvocationFlag !== true)
+      fail(dir, "disable-model-invocation must be a YAML boolean true");
+  } else if (hasDirectInvocationFlag) {
+    fail(dir, "must not declare disable-model-invocation");
+  }
   // Off Claude Code that field does not exist, so the wording has to carry it.
   if (DIRECT_ONLY.has(dir) && desc && !/^Use only when/i.test(desc))
     fail(dir, 'description must begin "Use only when..." (portable manual-only)');
@@ -219,8 +207,13 @@ for (const dir of skillDirs) {
 const versionFile = join(ROOT, "VERSION");
 let version = null;
 if (!existsSync(versionFile)) failures.push("VERSION: missing");
-else version = readFileSync(versionFile, "utf8").trim();
+else {
+  version = readFileSync(versionFile, "utf8").trim();
+  if (!version) failures.push("VERSION: missing or empty");
+  else if (!SEMVER_RE.test(version)) failures.push(`VERSION: invalid semver "${version}"`);
+}
 
+const packageManifest = readJson("package.json");
 const claudePlugin = readJson(".claude-plugin/plugin.json");
 const claudeMarket = readJson(".claude-plugin/marketplace.json");
 const codexPlugin = readJson(".codex-plugin/plugin.json");
@@ -228,14 +221,20 @@ const copilotMarket = readJson(".github/plugin/marketplace.json");
 const codexMarket = readJson(".agents/plugins/marketplace.json");
 
 const versioned = [
-  [".claude-plugin/plugin.json", claudePlugin?.version],
-  [".codex-plugin/plugin.json", codexPlugin?.version],
-  [".claude-plugin/marketplace.json", claudeMarket?.plugins?.[0]?.version],
-  [".github/plugin/marketplace.json", copilotMarket?.plugins?.[0]?.version],
+  ["package.json", "version", packageManifest?.version],
+  [".claude-plugin/plugin.json", "version", claudePlugin?.version],
+  [".codex-plugin/plugin.json", "version", codexPlugin?.version],
+  [".claude-plugin/marketplace.json", "top-level version", claudeMarket?.version],
+  [".claude-plugin/marketplace.json", "metadata.version", claudeMarket?.metadata?.version],
+  [".claude-plugin/marketplace.json", "plugins[0].version", claudeMarket?.plugins?.[0]?.version],
+  [".github/plugin/marketplace.json", "top-level version", copilotMarket?.version],
+  [".github/plugin/marketplace.json", "metadata.version", copilotMarket?.metadata?.version],
+  [".github/plugin/marketplace.json", "plugins[0].version", copilotMarket?.plugins?.[0]?.version],
 ];
-for (const [file, v] of versioned) {
-  if (v && version && v !== version)
-    failures.push(`${file}: version ${v} does not match VERSION ${version}`);
+for (const [file, field, v] of versioned) {
+  if (!isNonEmptyString(v)) failures.push(`${file}: ${field} missing or empty`);
+  else if (version && SEMVER_RE.test(version) && v !== version)
+    failures.push(`${file}: ${field} ${v} does not match VERSION ${version}`);
 }
 
 for (const [file, manifest] of [
