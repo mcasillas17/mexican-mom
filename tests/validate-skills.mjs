@@ -8,6 +8,7 @@
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseFrontmatter } from "./frontmatter.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SKILLS_DIR = join(ROOT, "skills");
@@ -59,34 +60,6 @@ const warnings = [];
 const fail = (skill, msg) => failures.push(`${skill}: ${msg}`);
 const warn = (skill, msg) => warnings.push(`${skill}: ${msg}`);
 
-/** Minimal frontmatter reader. Handles `key: value` and `key: >`/`|` blocks. */
-function parseFrontmatter(text) {
-  const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
-  if (!match) return null;
-  const fields = {};
-  let key = null;
-  let buffer = [];
-  const flush = () => {
-    if (key) fields[key] = buffer.join(" ").trim();
-    key = null;
-    buffer = [];
-  };
-  for (const line of match[1].split(/\r?\n/)) {
-    const kv = /^([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
-    if (kv && !/^\s/.test(line)) {
-      flush();
-      key = kv[1];
-      const value = kv[2].trim();
-      if (value === ">" || value === "|" || value === ">-" || value === "|-") buffer = [];
-      else buffer = [value];
-    } else if (key) {
-      buffer.push(line.trim());
-    }
-  }
-  flush();
-  return fields;
-}
-
 function readJson(relPath) {
   const abs = join(ROOT, relPath);
   if (!existsSync(abs)) {
@@ -122,15 +95,19 @@ for (const dir of skillDirs) {
     continue;
   }
   const text = readFileSync(skillPath, "utf8");
-  const fm = parseFrontmatter(text);
-  if (!fm) {
-    fail(dir, "no YAML frontmatter");
+  let fm;
+  try {
+    fm = parseFrontmatter(text, skillPath);
+  } catch (err) {
+    fail(skillPath, `frontmatter parse error: ${err.message}`);
     continue;
   }
 
+  const isNonEmptyString = (value) => typeof value === "string" && value.length > 0;
+
   // --- name: spec rules
   const name = fm.name;
-  if (!name) fail(dir, "frontmatter missing `name`");
+  if (!isNonEmptyString(name)) fail(dir, "frontmatter missing `name`");
   else {
     if (name !== dir) fail(dir, `name "${name}" does not match directory`);
     if (name.length > SPEC_NAME_MAX) fail(dir, `name exceeds ${SPEC_NAME_MAX} chars`);
@@ -143,7 +120,7 @@ for (const dir of skillDirs) {
 
   // --- description: the routing infrastructure
   const desc = fm.description;
-  if (!desc) fail(dir, "frontmatter missing `description`");
+  if (!isNonEmptyString(desc)) fail(dir, "frontmatter missing `description`");
   else {
     if (desc.length > SPEC_DESC_MAX)
       fail(dir, `description ${desc.length} chars exceeds spec cap ${SPEC_DESC_MAX}`);
@@ -173,7 +150,7 @@ for (const dir of skillDirs) {
   }
 
   // --- invocation policy
-  const directOnly = fm["disable-model-invocation"] === "true";
+  const directOnly = fm["disable-model-invocation"] === true;
   if (DIRECT_ONLY.has(dir) && !directOnly)
     fail(dir, "must set disable-model-invocation: true");
   if (!DIRECT_ONLY.has(dir) && directOnly)

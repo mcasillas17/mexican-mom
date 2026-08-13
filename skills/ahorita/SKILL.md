@@ -1,6 +1,10 @@
 ---
 name: ahorita
-description: Use when deferring work, writing a TODO, giving a time estimate, or promising a follow-up. Every deferral must resolve to one stated outcome: committed with a trigger and owner, declared out of scope, or deleted. NOT for urgent work that must preempt everything; use ahorita-es-ahorita.
+description: >
+  Use when deferring work, writing a TODO, giving a time estimate, or promising a
+  follow-up. Every deferral must resolve to one stated outcome: committed with a
+  trigger and owner, declared out of scope, or deleted. NOT for urgent work that
+  must preempt everything; use ahorita-es-ahorita.
 ---
 
 # Ahorita

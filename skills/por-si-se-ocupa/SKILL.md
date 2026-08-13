@@ -1,6 +1,11 @@
 ---
 name: por-si-se-ocupa
-description: Use before an operation that destroys state you cannot reproduce: deleting untracked files, overwriting uncommitted work, `git reset --hard` or `git clean`, dropping a table, deleting a bucket or volume, discarding an expensive artifact. NOT for ordinary edits to clean, committed files — git is already the copy.
+description: >
+  Use before an operation that destroys state you cannot reproduce: deleting
+  untracked files, overwriting uncommitted work, `git reset --hard` or
+  `git clean`, dropping a table, deleting a bucket or volume, discarding an
+  expensive artifact. NOT for ordinary edits to clean, committed files — git is
+  already the copy.
 ---
 
 # Guárdalo, por si se ocupa
