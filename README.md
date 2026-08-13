@@ -199,8 +199,9 @@ names. See [CHANGELOG.md](CHANGELOG.md) and the design spec in
 Before opening a PR:
 
 ```bash
-npm install   # the test suite needs the `yaml` parser
-npm test      # contract tests + the skill validator
+npm install            # the test suite needs the `yaml` parser
+npm test               # contract tests + the skill validator
+node tests/ci-checks.mjs   # packaging: portable frontmatter, manifests, encoding
 ```
 
 `npm test` runs both the contract tests and `tests/validate-skills.mjs`. Running the

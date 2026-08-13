@@ -1,0 +1,6 @@
+# CI fails a SKILL.md containing CRLF, because a regex-based frontmatter reader
+# silently misparses it. Normalise on the way in so that can never happen.
+* text=auto eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.mjs text eol=lf

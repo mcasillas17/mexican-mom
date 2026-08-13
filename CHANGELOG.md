@@ -10,6 +10,18 @@ change** and requires a MAJOR bump.
 
 ## Unreleased
 
+### Added
+
+- **CI.** The repo had none — tests and a validator existed but nothing ran them, which
+  is a poor arrangement for a project whose defining bug was silent. Three jobs:
+  `test` (Node 22 and 24, plus a listing-footprint step that reports on failure too),
+  `packaging`, and a tag-triggered `release-gate`.
+- `tests/ci-checks.mjs`, guarding how the pack reaches users rather than what it
+  contains: portable frontmatter, cross-skill routing references, router roster
+  coverage, manifest shape, whether declared component paths resolve, and encoding.
+  Runs locally as well as in CI.
+- `.gitattributes` normalising line endings, so CRLF cannot enter a `SKILL.md`.
+
 ### Fixed
 
 - **Contributing instructions no longer fail on a fresh clone.** The test suite gained a
