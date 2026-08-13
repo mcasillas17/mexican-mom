@@ -14,7 +14,13 @@ export function parseFrontmatter(text, source = "SKILL.md") {
   }
 
   const fields = document.toJS();
-  if (!fields || typeof fields !== "object" || Array.isArray(fields)) {
+  const prototype = fields && typeof fields === "object" ? Object.getPrototypeOf(fields) : null;
+  if (
+    !fields ||
+    typeof fields !== "object" ||
+    Array.isArray(fields) ||
+    (prototype !== Object.prototype && prototype !== null)
+  ) {
     throw new Error(`${source}: frontmatter must be a YAML mapping`);
   }
 
