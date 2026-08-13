@@ -151,10 +151,13 @@ effective anti-collision device available, and it is the reason the pack can dro
 
 `description` and `when_to_use` are truncated together at **1,536 characters per skill**
 — an absolute platform cap, not a target. Separately, the whole listing shares a
-context-dependent budget, and on overflow Claude Code silently drops descriptions. The
-budget is raised with `skillListingBudgetFraction` (e.g. `0.02`) or
-`SLASH_COMMAND_TOOL_CHAR_BUDGET`; entries can be set to `"name-only"` via
-`skillOverrides` to free room.
+context-dependent budget, and on overflow Claude Code silently drops descriptions. This
+release keeps the pack under the measured ~8,000-character ceiling, and the documented
+user-facing remedy remains `skillListingBudgetFraction` (e.g. `0.02`) as preserved in
+README v0.1.3. `SLASH_COMMAND_TOOL_CHAR_BUDGET` appears below only as the control varied
+in the controlled experiment to isolate listing size; it is not presented as a supported
+user configuration knob, and this spec does not add any additional mitigation claim for
+the release.
 
 **This is not hypothetical. v0.1.0–v0.1.2 shipped broken.** At 11,621 listing characters
 the pack overflowed on a default install, descriptions were dropped, and no skill ever
@@ -162,8 +165,9 @@ auto-invoked. Direct invocation via `/mexican-mom:<name>` kept working perfectly
 is what made it hard to spot — the pack looked functional and was not.
 
 Confirmed by controlled experiment: identical prompt, model, and repository, varying only
-`SLASH_COMMAND_TOOL_CHAR_BUDGET`. At the default the agent silently absorbed four planted
-scope items; with the budget raised, `no-se-te-olvide-que` classified all four and
+`SLASH_COMMAND_TOOL_CHAR_BUDGET` inside the experiment harness. At the default the agent
+silently absorbed four planted scope items; with the budget raised, `no-se-te-olvide-que`
+classified all four and
 `ahorita` flagged the undocumented follow-up. Nothing about the skills changed — only
 whether their descriptions reached the model.
 
