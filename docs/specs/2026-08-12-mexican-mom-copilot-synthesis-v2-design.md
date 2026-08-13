@@ -466,7 +466,7 @@ prompt-injection boundary added as `no-le-abras-la-puerta-a-cualquiera`.
 
 ## Historical invocation policy proposal
 
-> **Shipped outcome:** The canonical policy has 21 model- and user-invocable discipline
+> **Shipped outcome:** The repository has 22 model- and user-invocable discipline
 > skills. Only `la-chancla` and the manual `mexican-mom` router declare
 > `disable-model-invocation: true`; `porque-soy-tu-mama` remains automatic under its
 > narrow literal-pressure trigger.
