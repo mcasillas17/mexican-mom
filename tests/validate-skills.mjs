@@ -198,6 +198,7 @@ let version = null;
 if (!existsSync(versionFile)) failures.push("VERSION: missing");
 else version = readFileSync(versionFile, "utf8").trim();
 
+const packageManifest = readJson("package.json");
 const claudePlugin = readJson(".claude-plugin/plugin.json");
 const claudeMarket = readJson(".claude-plugin/marketplace.json");
 const codexPlugin = readJson(".codex-plugin/plugin.json");
@@ -205,14 +206,19 @@ const copilotMarket = readJson(".github/plugin/marketplace.json");
 const codexMarket = readJson(".agents/plugins/marketplace.json");
 
 const versioned = [
-  [".claude-plugin/plugin.json", claudePlugin?.version],
-  [".codex-plugin/plugin.json", codexPlugin?.version],
-  [".claude-plugin/marketplace.json", claudeMarket?.plugins?.[0]?.version],
-  [".github/plugin/marketplace.json", copilotMarket?.plugins?.[0]?.version],
+  ["package.json", "version", packageManifest?.version],
+  [".claude-plugin/plugin.json", "version", claudePlugin?.version],
+  [".codex-plugin/plugin.json", "version", codexPlugin?.version],
+  [".claude-plugin/marketplace.json", "top-level version", claudeMarket?.version],
+  [".claude-plugin/marketplace.json", "metadata.version", claudeMarket?.metadata?.version],
+  [".claude-plugin/marketplace.json", "plugins[0].version", claudeMarket?.plugins?.[0]?.version],
+  [".github/plugin/marketplace.json", "top-level version", copilotMarket?.version],
+  [".github/plugin/marketplace.json", "metadata.version", copilotMarket?.metadata?.version],
+  [".github/plugin/marketplace.json", "plugins[0].version", copilotMarket?.plugins?.[0]?.version],
 ];
-for (const [file, v] of versioned) {
-  if (v && version && v !== version)
-    failures.push(`${file}: version ${v} does not match VERSION ${version}`);
+for (const [file, field, v] of versioned) {
+  if (v !== undefined && version && v !== version)
+    failures.push(`${file}: ${field} ${v} does not match VERSION ${version}`);
 }
 
 for (const [file, manifest] of [
