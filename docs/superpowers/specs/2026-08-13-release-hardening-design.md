@@ -82,9 +82,11 @@ commands using the currently supported CLI forms.
 The changelog will state the correct roster of 23 discipline skills plus one router and
 will no longer claim that malformed skills enabled successfully.
 
-The canonical design will remove unsupported claims about a 1% listing budget,
-least-used eviction, and `skillListingBudgetFraction`; correct any conflicting placement
-guidance for negative triggers; and use explicit platform update commands.
+The canonical design keeps the post-v0.1.3 accepted contract: preserve the measured
+shared-budget behavior and the verified user-facing `skillListingBudgetFraction`
+mitigation, while removing unsupported claims about an exact 1% listing budget,
+least-used eviction, and `skillOverrides`; correct any conflicting placement guidance
+for negative triggers; and use explicit platform update commands.
 
 The two companion proposals will receive prominent superseded notices wherever their
 roster or generated-package architecture conflicts with the canonical shipped design.

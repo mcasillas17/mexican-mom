@@ -1,6 +1,6 @@
 ---
 name: porque-yo-lo-digo
-description: Use after the user has explicitly chosen an approach or rejected an alternative and you are about to re-open it — re-proposing, hedging, asking why, or quietly building a compromise. NOT for a safety concern you have not yet raised even once; use porque-soy-tu-mama.
+description: Use after the user has settled a decision and you are about to relitigate it; NOT for user pressure or ordinary unraised concerns — route explicit pressure to porque-soy-tu-mama — but a previously omitted material safety, security, privacy, or irreversible-data-loss risk may be raised once.
 ---
 
 # Porque yo lo digo y punto

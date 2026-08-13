@@ -23,6 +23,8 @@ const SPEC_DESC_MAX = 1024;
 const LISTING_CAP = 1536;
 // The pack's own authoring target, tighter than the spec cap on purpose.
 const DESC_TARGET = 320;
+const SEMVER_RE =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
 
 // The whole listing shares a budget that scales with the context window, and on
 // overflow Claude Code drops descriptions SILENTLY — skills still list by name, but
@@ -59,6 +61,10 @@ const warnings = [];
 
 const fail = (skill, msg) => failures.push(`${skill}: ${msg}`);
 const warn = (skill, msg) => warnings.push(`${skill}: ${msg}`);
+
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.trim().length > 0;
+}
 
 function readJson(relPath) {
   const abs = join(ROOT, relPath);
@@ -102,8 +108,6 @@ for (const dir of skillDirs) {
     fail(skillPath, `frontmatter parse error: ${err.message}`);
     continue;
   }
-
-  const isNonEmptyString = (value) => typeof value === "string" && value.length > 0;
 
   // --- name: spec rules
   const name = fm.name;
@@ -150,11 +154,18 @@ for (const dir of skillDirs) {
   }
 
   // --- invocation policy
-  const directOnly = fm["disable-model-invocation"] === true;
-  if (DIRECT_ONLY.has(dir) && !directOnly)
-    fail(dir, "must set disable-model-invocation: true");
-  if (!DIRECT_ONLY.has(dir) && directOnly)
-    fail(dir, "unexpectedly sets disable-model-invocation");
+  const hasDirectInvocationFlag = Object.prototype.hasOwnProperty.call(
+    fm,
+    "disable-model-invocation",
+  );
+  const directInvocationFlag = fm["disable-model-invocation"];
+  if (DIRECT_ONLY.has(dir)) {
+    if (!hasDirectInvocationFlag) fail(dir, "must set disable-model-invocation: true");
+    else if (directInvocationFlag !== true)
+      fail(dir, "disable-model-invocation must be a YAML boolean true");
+  } else if (hasDirectInvocationFlag) {
+    fail(dir, "must not declare disable-model-invocation");
+  }
   // Off Claude Code that field does not exist, so the wording has to carry it.
   if (DIRECT_ONLY.has(dir) && desc && !/^Use only when/i.test(desc))
     fail(dir, 'description must begin "Use only when..." (portable manual-only)');
@@ -196,7 +207,11 @@ for (const dir of skillDirs) {
 const versionFile = join(ROOT, "VERSION");
 let version = null;
 if (!existsSync(versionFile)) failures.push("VERSION: missing");
-else version = readFileSync(versionFile, "utf8").trim();
+else {
+  version = readFileSync(versionFile, "utf8").trim();
+  if (!version) failures.push("VERSION: missing or empty");
+  else if (!SEMVER_RE.test(version)) failures.push(`VERSION: invalid semver "${version}"`);
+}
 
 const packageManifest = readJson("package.json");
 const claudePlugin = readJson(".claude-plugin/plugin.json");
@@ -217,7 +232,8 @@ const versioned = [
   [".github/plugin/marketplace.json", "plugins[0].version", copilotMarket?.plugins?.[0]?.version],
 ];
 for (const [file, field, v] of versioned) {
-  if (v !== undefined && version && v !== version)
+  if (!isNonEmptyString(v)) failures.push(`${file}: ${field} missing or empty`);
+  else if (version && SEMVER_RE.test(version) && v !== version)
     failures.push(`${file}: ${field} ${v} does not match VERSION ${version}`);
 }
 
