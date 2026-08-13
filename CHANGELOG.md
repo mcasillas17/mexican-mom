@@ -40,8 +40,9 @@ Confirmed by controlled experiment. The same prompt, model, and repository, vary
 
 ### Changed
 
-- Frontmatter now uses only the six fields in the Agent Skills specification, so the pack
-  is byte-identical across all supported platforms.
+- Removed `when_to_use` from every skill. The two direct-only skills retain
+  `disable-model-invocation: true` for Claude Code; on Copilot and Codex their
+  direct-only status remains a prompt contract.
 
 ## [0.1.2] — 2026-08-13
 
@@ -77,8 +78,10 @@ Every command in the README and the spec's platform table was run against its CL
 
 ### Verified
 
-- Clean install confirmed end to end on Claude Code, GitHub Copilot CLI, and Codex.
-  All 24 skills install and enable on each.
+- Marketplace installation succeeded end to end on Claude Code, GitHub Copilot CLI, and
+  Codex.
+- A later audit found malformed YAML kept three skills from loading correctly in Copilot,
+  so the initial 24-skill readout there was too optimistic.
 - Copilot and Codex accept `when_to_use` and `disable-model-invocation` without error.
   Those Claude Code-only fields are tolerated rather than rejected, so one `skills/`
   tree serves all three platforms with no build step.
@@ -87,7 +90,7 @@ Every command in the README and the spec's platform table was run against its CL
 
 ### Added
 
-Initial release. 22 discipline skills plus a router.
+Initial release. 23 discipline skills plus a router.
 
 **Investigation and evidence**
 

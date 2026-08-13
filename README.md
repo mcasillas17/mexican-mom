@@ -48,31 +48,41 @@ it is really just a syntax error.
 
 Add `/reload-plugins` to apply the update without restarting the session.
 
-**Copilot CLI** — refresh the catalog first, then the plugin.
+**Copilot CLI** — refresh the catalog first, then update or uninstall the qualified
+plugin name.
 
 ```bash
 copilot plugin marketplace update mcasillas17
-copilot plugin update mexican-mom
+copilot plugin update mexican-mom@mcasillas17
 ```
 
-**Codex**
+**Codex** — refresh the catalog first, then reinstall the refreshed plugin with `add`.
 
 ```bash
 codex plugin marketplace upgrade mcasillas17
+codex plugin add mexican-mom@mcasillas17
 ```
 
 ### Uninstalling
 
 ```text
 /plugin uninstall mexican-mom@mcasillas17     # Claude Code
-copilot plugin uninstall mexican-mom          # Copilot CLI
-codex plugin remove mexican-mom@mcasillas17   # Codex — qualified name required
+copilot plugin uninstall mexican-mom@mcasillas17   # Copilot CLI
+codex plugin remove mexican-mom@mcasillas17        # Codex — qualified name required
 ```
 
 ## The skills
 
-Mom shows up on her own when the situation calls for her. You can also invoke any skill
-directly as `/mexican-mom:<name>`.
+Mom shows up on her own when the situation calls for her.
+
+Automatic routing uses the router entry point for your platform and picks one skill plus
+at most one safety overlay.
+
+| Platform | Direct invocation | Router |
+| --- | --- | --- |
+| Claude Code | `/mexican-mom:<name>` | `/mexican-mom` |
+| GitHub Copilot CLI | `/<name>` | `/mexican-mom` |
+| Codex | `$<name>` | `$mexican-mom` |
 
 ### Investigation and evidence
 
@@ -119,8 +129,9 @@ directly as `/mexican-mom:<name>`.
 
 ### Router
 
-`mexican-mom` — type `/mexican-mom` to have her pick the right one, or show the index. She
-selects one skill plus at most one safety overlay; she never loads the whole pack.
+Automatic routing is platform-specific: use `/mexican-mom` in Claude Code and GitHub
+Copilot CLI, or `$mexican-mom` in Codex. She selects one skill plus at most one safety
+overlay; she never loads the whole pack.
 
 ## `ahorita` vs `ahorita-es-ahorita`
 
