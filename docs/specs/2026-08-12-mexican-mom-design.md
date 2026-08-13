@@ -150,11 +150,11 @@ effective anti-collision device available, and it is the reason the pack can dro
 ### The listing budget is not a risk — it fired
 
 `description` and `when_to_use` are truncated together at **1,536 characters per skill**
-— an absolute platform cap, not a target. Separately, the whole listing shares a budget
-that **scales at 1% of the model's context window**, and on overflow Claude Code **drops
-descriptions starting with the skills you invoke least**. The budget is raised with
-`skillListingBudgetFraction` (e.g. `0.02`) or `SLASH_COMMAND_TOOL_CHAR_BUDGET`; entries
-can be set to `"name-only"` via `skillOverrides` to free room.
+— an absolute platform cap, not a target. Separately, the whole listing shares a
+context-dependent budget, and on overflow Claude Code silently drops descriptions. The
+budget is raised with `skillListingBudgetFraction` (e.g. `0.02`) or
+`SLASH_COMMAND_TOOL_CHAR_BUDGET`; entries can be set to `"name-only"` via
+`skillOverrides` to free room.
 
 **This is not hypothetical. v0.1.0–v0.1.2 shipped broken.** At 11,621 listing characters
 the pack overflowed on a default install, descriptions were dropped, and no skill ever
@@ -803,7 +803,7 @@ Recorded where this document overrides the Copilot synthesis.
 | Question | Copilot v2 | This document | Reason |
 | --- | --- | --- | --- |
 | `pero-no-haces-caso` | Remove, swap for the injection skill | **Keep, and add the injection skill** | Roster size is not fixed; no trade is needed. Its confabulation flaw was already fixed by scoping to warnings the agent itself stated, with an explicit "say nothing if none exists." |
-| Routing metadata | Drop listing-budget evidence | **Keep measured budget guidance** | Keep routing metadata concise, preserve the measured listing budget and supported mitigation, and verify discovery in each client. |
+| Routing metadata | Drop listing-budget evidence | **Keep measured budget guidance** | Keep routing metadata concise, preserve the measured listing budget, supported mitigation, and cap guidance, and verify discovery in each client. |
 | `porque-soy-tu-mama` | Direct-only | **Automatic** | Direct-only defeats it — nobody types the skill at the moment they are rushing. The paternalism concern is addressed by triggering on the user's literal words rather than inferred state. |
 | Roster size | 23 + router | **23 + router** | Keep the canonical roster fixed. |
 | Packaging (cross-platform doc) | `skill-src/` + generated `dist/`, three packages | **One `skills/` tree, three manifests** | The portable tree stays canonical; packaging differences live in manifests, not duplicated generated files. |
