@@ -1,6 +1,12 @@
 # mexican-mom — Cross-Platform Packaging with Copilot Support
 
-**HISTORICAL / SUPERSEDED:** The canonical design supersedes the shipped roster, one-tree packaging, and current commands; retain this document for history.
+> [!IMPORTANT]
+> **Historical proposal, superseded by
+> [`2026-08-12-mexican-mom-design.md`](./2026-08-12-mexican-mom-design.md).**
+> The canonical spec defines the shipped roster, one-tree packaging, metadata policy,
+> commands, validation, and release process. This document is retained to explain the
+> alternatives considered; outcome callouts identify recommendations that were tested
+> and rejected.
 
 **Date:** 2026-08-12  
 **Status:** Proposed companion to the canonical design  
@@ -14,10 +20,15 @@ without changing the skill roster or behavioral contracts.
 
 The core `SKILL.md` content is portable. Plugin manifests, marketplace catalogs,
 invocation controls, installation commands, update behavior, and release artifacts are
-not. The repository should therefore maintain one canonical skill source and generate
-three platform packages.
+not. This proposal originally concluded that the repository should maintain one canonical
+skill source and generate three platform packages.
 
-## Corrections to the canonical cross-platform section
+> **Shipped outcome (v0.1.4):** One `skills/` tree serves Claude Code, Copilot CLI, and
+> Codex. Copilot and Codex accept valid shared frontmatter and tolerate the remaining
+> Claude-only `disable-model-invocation` field. No `skill-src/`, generated `dist/`,
+> per-platform skill copy, or package generator is used.
+
+## Historical corrections proposed for the canonical cross-platform section
 
 The canonical design should change these platform claims:
 
@@ -25,38 +36,47 @@ The canonical design should change these platform claims:
    `.codex-plugin/plugin.json`; repo marketplaces use
    `.agents/plugins/marketplace.json`; the CLI supports
    `codex plugin marketplace add`.
-2. **Copilot support does not require restructuring the skill content.** It requires a
-   root `plugin.json` inside the Copilot package and a marketplace catalog at
-   `.github/plugin/marketplace.json`. Copilot also recognizes a catalog in
-   `.claude-plugin/marketplace.json`, but a dedicated catalog avoids schema coupling.
-3. **Do not use a symlink as the distribution strategy.** Claude, Copilot, and Codex
-   cache or copy plugin directories differently. Generate real package directories so
-   every installed artifact is self-contained.
-4. **`when_to_use` and `disable-model-invocation` are Claude Code extensions.** They
-   cannot be present in the portable Copilot/Codex `SKILL.md` variants.
-5. **Routing-critical negative triggers belong in `description`.** The canonical text
-   currently states this correctly, then later says negative triggers belong in
-   `when_to_use`. The first statement is the portable rule; `when_to_use` carries only
-   optional trigger examples.
-6. **Do not rely on undocumented Claude settings in the cross-platform contract.** The
-   official Claude skills reference documents the 1,536-character combined
-   `description` and `when_to_use` cap. Cross-platform packaging should not require
-   `skillListingBudgetFraction`, a fixed total percentage, or an eviction-order claim.
+2. **Copilot support does not require restructuring the skill content.** This proposal
+   assumed a root `plugin.json` inside a Copilot-specific package. The shipped plugin
+   instead uses Copilot's verified `.claude-plugin/plugin.json` fallback plus a
+   `.github/plugin/marketplace.json` catalog.
+3. ~~**Generate real platform package directories instead of using symlinks.**~~ No
+   platform-specific directories are needed. Each client installs or caches real files
+   from the shared root tree.
+4. ~~**`when_to_use` and `disable-model-invocation` must be stripped from portable
+   variants.**~~ The shared tree omits `when_to_use` entirely and retains
+   `disable-model-invocation` only on the two direct-only skills. Copilot and Codex
+   tolerate that field when the enclosing YAML is valid.
+5. **Routing-critical negative triggers belong in `description`.** This survived into
+   the canonical design. `when_to_use` did not: v0.1.3 removed it from all 24 skills.
+6. ~~**Treat the shared listing budget and `skillListingBudgetFraction` as
+   undocumented.**~~ Both are documented Claude Code behavior. Their removal from the
+   design would have erased the root cause and remedy for a failure that shipped in three
+   releases.
+
+> **Outcome (v0.1.3):**
+> - `when_to_use` was removed from all 24 skills and is now banned by
+>   `tests/validate-skills.mjs`.
+> - Routing-critical and trigger content lives only in `description`.
+> - The generator recommendation was rejected after real Copilot and Codex installs
+>   accepted the shared tree.
+> - The listing-budget behavior and `skillListingBudgetFraction` are documented Claude
+>   Code behavior and remain operational guidance.
 
 ## Portability contract
 
 ### Canonical skill source
 
-Every skill has one source definition containing:
+Every shipped skill has one `SKILL.md` containing:
 
 - slug;
 - portable `description`, including routing-critical exclusions;
-- optional Claude-only trigger phrases;
 - whether Claude should allow automatic model invocation;
 - shared Markdown body;
 - optional supporting files.
 
-The body remains identical across platforms. Only frontmatter and packaging differ.
+The complete file remains identical across platforms. Small platform manifests and
+marketplace catalogs point at the same root `skills/` tree.
 
 ### Portable frontmatter
 
@@ -73,19 +93,21 @@ license: MIT
 
 Do not include tool grants. The pack adds discipline rather than authority.
 
-### Claude Code frontmatter
-
-The Claude package enriches the same portable fields:
+### Current shared frontmatter
 
 ```yaml
 ---
 name: y-si-lo-encuentro-que
-description: Use before reporting that a repository artifact is absent or unfindable.
+description: >
+  Use before reporting that a repository artifact is absent or unfindable.
   NOT for an unverified external fact; use cadena-de-whatsapp.
-when_to_use: >
-  Triggers: "I couldn't find", "there is no", "does not exist".
 ---
 ```
+
+`when_to_use` is not a current optional field in this pack. It was removed in v0.1.3 and
+the validator rejects any reintroduction. Only `la-chancla` and `mexican-mom` retain
+`disable-model-invocation: true`; Copilot and Codex treat their manual-only boundary as a
+prompt contract.
 
 Only `la-chancla` and `mexican-mom` add:
 
@@ -93,8 +115,8 @@ Only `la-chancla` and `mexican-mom` add:
 disable-model-invocation: true
 ```
 
-If the canonical design continues to make `porque-soy-tu-mama` automatic, that behavior
-is preserved in Claude. Copilot and Codex receive its portable description and body.
+`porque-soy-tu-mama` remains automatic under its narrow literal-pressure trigger.
+Copilot and Codex receive the same description and body.
 
 ### Manual-only behavior outside Claude
 
@@ -107,7 +129,13 @@ portable Agent Skills contract. For `la-chancla` and the router:
 
 This is a documented behavioral difference. It is not a reason to drop those skills.
 
-## Source and generated layout
+## Rejected proposal: source and generated layout
+
+> **Rejected after installation testing.** This layout existed to strip Claude-only
+> fields from portable copies. Copilot CLI and Codex accepted the valid shared tree, so
+> the generator added maintenance and drift risk without solving a real compatibility
+> problem. The shipped repository keeps `skills/` at the root and points all platform
+> manifests/catalogs at it.
 
 ```text
 mexican-mom/
@@ -146,8 +174,8 @@ mexican-mom/
 └── LICENSE
 ```
 
-`dist/` is generated but committed so marketplace installations are reproducible from a
-tagged repository revision. Generated packages contain real files, not symlinks.
+The tree below is retained as the rejected proposal. It was never required by a supported
+client and is not the shipped repository layout.
 
 ## Platform packages
 
@@ -179,7 +207,7 @@ Marketplace:
     {
       "name": "mexican-mom",
       "version": "0.1.0",
-      "source": "./dist/claude/mexican-mom"
+      "source": "./"
     }
   ]
 }
@@ -203,7 +231,7 @@ Update:
 
 ```text
 /plugin marketplace update
-/plugin update mexican-mom
+/plugin update mexican-mom@mcasillas17
 ```
 
 ### GitHub Copilot CLI
@@ -244,7 +272,7 @@ Marketplace:
       "name": "mexican-mom",
       "description": "Mexican mom-inspired engineering discipline for coding agents",
       "version": "0.1.0",
-      "source": "./dist/copilot/mexican-mom"
+      "source": "./"
     }
   ]
 }
@@ -338,7 +366,7 @@ Repo marketplace:
       "name": "mexican-mom",
       "source": {
         "source": "local",
-        "path": "./dist/codex/mexican-mom"
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -350,15 +378,19 @@ Repo marketplace:
 }
 ```
 
-Add or refresh the marketplace:
+Add, install, update, or remove through the Codex CLI:
 
 ```bash
 codex plugin marketplace add mcasillas17/mexican-mom
+codex plugin add mexican-mom@mcasillas17
 codex plugin marketplace upgrade mcasillas17
+codex plugin add mexican-mom@mcasillas17
+codex plugin remove mexican-mom@mcasillas17
 ```
 
-Install the plugin from the Plugins Directory in the ChatGPT desktop app after selecting
-the `mcasillas17` marketplace source. Codex invokes skills with its skill syntax, such as
+Codex uses `plugin add`, not `plugin install`, and requires the qualified
+`plugin@marketplace` name for removal. The ChatGPT desktop Plugins Directory remains an
+additional installation path. Codex invokes skills with its skill syntax, such as
 `$a-ver-ensename`.
 
 For the universal public Plugins Directory, publication is a separate submission from
@@ -370,9 +402,9 @@ artifact.
 | Capability | Claude Code | Copilot CLI | Codex |
 | --- | --- | --- | --- |
 | Portable `name` and `description` | Yes | Yes | Yes |
-| `when_to_use` | Yes | Do not ship | Do not ship |
+| `when_to_use` | Not shipped; validator-banned | Not shipped; validator-banned | Not shipped; validator-banned |
 | `disable-model-invocation` | Yes | No portable equivalent | No portable equivalent |
-| Plugin manifest | `.claude-plugin/plugin.json` | `plugin.json` | `.codex-plugin/plugin.json` |
+| Plugin manifest | `.claude-plugin/plugin.json` | reads `.claude-plugin/plugin.json` as a verified fallback | `.codex-plugin/plugin.json` |
 | Marketplace catalog | `.claude-plugin/marketplace.json` | `.github/plugin/marketplace.json` | `.agents/plugins/marketplace.json` |
 | Full-pack install | Claude marketplace | Copilot marketplace | Plugins Directory / Codex marketplace |
 | Direct skill syntax | `/plugin:skill` | `/skill-name` in prompts | `$skill-name` |
@@ -383,8 +415,8 @@ not inside the shared behavioral procedure.
 
 ## Release and publication
 
-Use `VERSION` as the single source of truth. `scripts/build-packages.mjs` writes the same
-version into all three manifests and marketplace entries.
+Use `VERSION` as the single source of truth. Repository validation requires every
+manifest, marketplace entry, and `package.json` to agree with it.
 
 Release types:
 
@@ -394,61 +426,55 @@ Release types:
 
 Release procedure:
 
-1. Update canonical skill sources.
-2. Update `CHANGELOG.md`.
-3. Set the new version in `VERSION`.
-4. Generate all three packages.
-5. Validate manifests, catalogs, frontmatter, roster parity, and generated-file
-   cleanliness.
-6. Run shared behavioral fixtures against each platform variant.
-7. Perform clean marketplace installations for Claude, Copilot, and Codex.
-8. Commit generated packages.
-9. Tag `vX.Y.Z` and push the commit and tag.
-10. Verify that each marketplace resolves the tagged package and displays the new
-    version.
+1. Update canonical files in the root repository.
+2. Update release notes and `VERSION` when publishing a release.
+3. Run `npm install && npm test`.
+4. Validate the three manifests/catalogs and their shared `skills/` tree.
+5. Perform clean marketplace installations for Claude Code, Copilot CLI, and Codex.
+6. Tag and publish only after all three clients discover the same roster.
 
 Repository marketplaces publish when the updated commit is pushed. They do not require a
 separate upload:
 
-- Claude users refresh and run `/plugin update`.
+- Claude users refresh and run `/plugin update mexican-mom@mcasillas17`.
 - Copilot users run `copilot plugin marketplace update` and
   `copilot plugin update`.
-- Codex users run `codex plugin marketplace upgrade`, then update from the Plugins
-  Directory.
+- Codex users run `codex plugin marketplace upgrade mcasillas17`, then
+  `codex plugin add mexican-mom@mcasillas17`.
 
 Publishing to Codex's universal Plugins Directory remains a separate release channel.
 
 ## Build validation
 
-`scripts/validate-packages.mjs` must check:
+`npm test` must check:
 
 - all three manifests contain the same plugin name and version;
-- all three packages contain the same roster and supporting files;
-- portable packages contain no Claude-only frontmatter;
+- all three manifests/catalogs point at the same root `skills/` tree;
+- every frontmatter block is valid YAML;
+- no skill declares `when_to_use`;
 - Claude direct-only skills contain `disable-model-invocation: true`;
 - all routing-critical negative triggers appear in `description`;
 - descriptions satisfy the portable 1,024-character limit;
-- Claude `description` plus `when_to_use` remains below 1,536 characters;
+- each listing entry remains below 1,536 characters;
+- the total listing remains below the 8,000-character regression ceiling;
 - no package grants tools or includes hooks, hidden scripts, or runtime state;
 - marketplace source paths resolve inside the repository;
 - marketplace names and install commands agree;
-- generated files exactly match canonical sources;
-- no symlinks exist inside generated packages;
-- every package passes its platform validator or clean-install smoke test.
+- every platform passes its validator or clean-install smoke test.
 
 ## Behavioral validation
 
 Run the same positive, negative, pressure, collision, security, and composition fixtures
-against all three generated skill variants.
+against the shared skill tree through all three clients.
 
 Expected differences:
 
 - Claude reliably keeps `la-chancla` and the router manual-only.
 - Copilot and Codex treat manual-only behavior as a strongly worded prompt contract.
-- Trigger phrases in Claude's `when_to_use` may improve routing, but deleting that field
-  must not change ownership because the portable `description` is complete.
+- Automatic routing comes from each skill's portable `description`; no platform receives
+  a `when_to_use` variant.
 
-Release fails if the portable variants:
+Release fails if the shared tree:
 
 - route a negative-trigger case to the wrong skill;
 - auto-select `la-chancla` or the router in common smoke tests;
@@ -470,18 +496,12 @@ The README should include:
 9. versioning and changelog policy;
 10. uninstall instructions for each platform.
 
-## Recommendation
+## Shipped recommendation
 
-Support Claude Code, GitHub Copilot CLI, and Codex in v1. The additional maintenance
-cost should be handled by generated packages, not by hand-maintaining three skill trees.
-
-The core design already satisfies the hardest portability requirement: routing-critical
-information is in `description`, and all behavior is expressed in English inside
-`SKILL.md`. Adding Copilot is therefore a packaging and release-engineering task, not a
-rewrite of the skills.
-
-The canonical spec should replace its current "Copilot deliberately out of scope" and
-"Codex has no marketplace" sections with this three-package model.
+Support Claude Code, GitHub Copilot CLI, and Codex from one root `skills/` tree. Keep
+platform differences in the small manifests/catalogs and in user-facing invocation
+documentation. Do not introduce generated packages unless a supported client begins
+rejecting valid shared frontmatter and a reproducible install test demonstrates the need.
 
 ## Official references
 
