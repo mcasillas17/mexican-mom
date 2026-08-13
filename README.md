@@ -31,10 +31,10 @@ copilot plugin install mexican-mom@mcasillas17
 
 ```bash
 codex plugin marketplace add mcasillas17/mexican-mom
+codex plugin add mexican-mom@mcasillas17
 ```
 
-Then install `mexican-mom` from the Plugins Directory with the `mcasillas17` source
-selected.
+Note that Codex uses `plugin add`, not `plugin install`.
 
 ## The skills
 

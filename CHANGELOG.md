@@ -8,6 +8,21 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Because users invoke skills by name, **renaming or removing a skill slug is a breaking
 change** and requires a MAJOR bump.
 
+## [0.1.1] — 2026-08-13
+
+### Fixed
+
+- Corrected the Codex install command in the README. It is `codex plugin add`, not
+  `codex plugin install` — the latter subcommand does not exist.
+
+### Verified
+
+- Clean install confirmed end to end on Claude Code, GitHub Copilot CLI, and Codex.
+  All 24 skills install and enable on each.
+- Copilot and Codex accept `when_to_use` and `disable-model-invocation` without error.
+  Those Claude Code-only fields are tolerated rather than rejected, so one `skills/`
+  tree serves all three platforms with no build step.
+
 ## [0.1.0] — 2026-08-12
 
 ### Added

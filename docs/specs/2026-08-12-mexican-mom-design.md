@@ -608,7 +608,7 @@ frontmatter fields, which is not enough to justify a code generator.
 | Manifest | `.claude-plugin/plugin.json` | reads `.claude-plugin/plugin.json` as a fallback | `.codex-plugin/plugin.json` |
 | Marketplace | `.claude-plugin/marketplace.json` | `.github/plugin/marketplace.json` *or* `.claude-plugin/marketplace.json` | `.agents/plugins/marketplace.json` |
 | Add marketplace | `/plugin marketplace add mcasillas17/mexican-mom` | `copilot plugin marketplace add mcasillas17/mexican-mom` | `codex plugin marketplace add mcasillas17/mexican-mom` |
-| Install | `/plugin install mexican-mom@mcasillas17` | `copilot plugin install mexican-mom@mcasillas17` | Plugins Directory, `mcasillas17` source |
+| Install | `/plugin install mexican-mom@mcasillas17` | `copilot plugin install mexican-mom@mcasillas17` | `codex plugin add mexican-mom@mcasillas17` |
 | Update | `/plugin update` | `copilot plugin marketplace update` then `copilot plugin update` | `codex plugin marketplace upgrade` |
 | Invoke | `/mexican-mom:la-chancla` | name the skill in the prompt | `$a-ver-ensename` |
 
@@ -619,7 +619,19 @@ to avoid schema coupling, but it is a second small catalog, not a second package
 
 Codex plugin manifests declare `"skills": "./skills/"` and point at the same tree.
 
-### The one open question
+### The open question — RESOLVED 2026-08-13
+
+**Tested. Copilot CLI and Codex both accept the Claude Code-only fields without error.**
+`copilot plugin install mexican-mom@mcasillas17` reported "Installed 24 skills" and
+`codex plugin add mexican-mom@mcasillas17` installed all 24, with `when_to_use` and
+`disable-model-invocation` present in the frontmatter throughout. Unknown keys are
+tolerated, not rejected — the strictness documented for claude.ai and the Skills API does
+not extend to these two clients.
+
+**Therefore no build step, no generated `dist/`, and no portable-variant generator.** One
+`skills/` tree serves all three platforms. The original reasoning is preserved below.
+
+### The original question
 
 The `skill-src/` + generated `dist/` architecture proposed in the Copilot companion doc
 exists solely to strip `when_to_use` and `disable-model-invocation` from portable
