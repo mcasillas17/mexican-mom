@@ -75,10 +75,11 @@ codex plugin remove mexican-mom@mcasillas17        # Codex — qualified name re
 
 Mom shows up on her own when the situation calls for her.
 
-Automatic routing uses the router entry point for your platform and picks one skill plus
-at most one safety overlay.
+Automatic routing comes directly from each individual skill's `description`. The
+`mexican-mom` router/index is manually invoked and selects one primary skill plus at
+most one safety overlay.
 
-| Platform | Direct invocation | Router |
+| Platform | Direct invocation | Manual router |
 | --- | --- | --- |
 | Claude Code | `/mexican-mom:<name>` | `/mexican-mom` |
 | GitHub Copilot CLI | `/<name>` | `/mexican-mom` |

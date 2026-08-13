@@ -16,6 +16,8 @@ change** and requires a MAJOR bump.
   duplicate keys, and non-mapping documents now fail validation.
 - Fold the three previously malformed descriptions, preserving the listing-budget checks
   that keep automatic routing available.
+- Clarify automatic routing vs manual router usage and remove the hard-coded Claude
+  command from the shared `la-chancla` guidance so direct syntax stays portable.
 - Permit one concise correction for a previously omitted material safety, security,
   privacy, or irreversible-data-loss risk without reopening ordinary decisions.
 - Correct platform invocation, update, and uninstall guidance, including Codex's refresh
