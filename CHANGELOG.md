@@ -8,6 +8,25 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Because users invoke skills by name, **renaming or removing a skill slug is a breaking
 change** and requires a MAJOR bump.
 
+## Unreleased
+
+### Fixed
+
+- **Contributing instructions no longer fail on a fresh clone.** The test suite gained a
+  real `yaml` dependency in 0.1.4, but the README still said to run
+  `node tests/validate-skills.mjs` directly. Without `npm install` that exits with
+  `Cannot find package 'yaml'`, which reads like a broken repository rather than a
+  missing install step. Now documents `npm install` followed by `npm test`, which runs
+  the contract tests and the validator together.
+
+  No version bump: this affects contributors only and changes nothing that ships to
+  users, so it should not push a no-op update to every install.
+
+### Added
+
+- A note in Contributing about the listing footprint the validator prints on every run,
+  and why overflowing it fails silently. Adding a skill is not free.
+
 ## [0.1.4] — 2026-08-13
 
 ### Fixed
